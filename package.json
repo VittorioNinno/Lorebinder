@@ -1,0 +1,12 @@
+{
+  "name": "lore-pdf-generator",
+  "version": "1.0.0",
+  "description": "Editor web per note di sessione e Lore di D&D con esportazione PDF impaginata come un manuale",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "npx --yes serve .",
+    "build": "node tools/build-standalone.mjs"
+  },
+  "license": "MIT"
+}

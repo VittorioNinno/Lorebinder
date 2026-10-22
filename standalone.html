@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lore PDF Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+:root{--bg:#f4f1ea;--panel:#fff;--text:#1c1815;--muted:#6b625a;--border:#d9d0c0;--accent:#58180D;--accent2:#8c2514;color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1a1714;--panel:#26211d;--text:#eee7da;--muted:#a39a8c;--border:#3d352d;--accent:#e0866f;--accent2:#b8452e;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1a1714;--panel:#26211d;--text:#eee7da;--muted:#a39a8c;--border:#3d352d;--accent:#e0866f;--accent2:#b8452e;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font:14px/1.4 system-ui,sans-serif}
+.topbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 14px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}
+.topbar h1{flex:1;min-width:150px;margin:0;font:700 16px 'Cinzel',serif;color:var(--accent)}
+button{font:inherit;cursor:pointer;border:1px solid var(--border);background:var(--panel);color:var(--text);border-radius:6px;padding:6px 10px}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent2);border-color:var(--accent2);color:#fff}
+button.sm{padding:2px 7px;font-size:12px}
+.tabs{display:none;gap:6px}
+.app{display:grid;grid-template-columns:minmax(340px,440px) 1fr;height:calc(100vh - 58px)}
+.editor,.preview-pane{overflow:auto;padding:14px}
+.editor{border-right:1px solid var(--border)}
+.hint{margin:0 0 10px;font-size:12px;color:var(--muted)}
+label{display:block;margin:6px 0 2px;font-size:12px;color:var(--muted)}
+label.check{display:flex;gap:6px;align-items:center;margin:8px 0}
+input[type=text],textarea{width:100%;padding:6px;font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--border);border-radius:5px}
+textarea{min-height:70px;resize:vertical}
+.section{margin:14px 0;padding:10px;background:var(--panel);border:1px solid var(--border);border-radius:8px}
+.row{display:flex;gap:4px}
+.block{margin:8px 0;border:1px solid var(--border);border-radius:6px}
+.block-head{display:flex;gap:4px;align-items:center;padding:5px 8px;background:var(--bg);border-radius:6px}
+.block-title{flex:1;cursor:pointer;font-weight:600}
+.block-type{font-size:11px;color:var(--muted);text-transform:uppercase}
+.block-body{padding:8px}
+.add-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.thumb{max-width:100px;max-height:60px;margin-left:6px;vertical-align:middle;border-radius:3px}
+@media (max-width:860px){
+  .tabs{display:flex}
+  .app{display:block;height:auto}
+  .editor,.preview-pane{height:calc(100vh - 110px)}
+  body.show-preview .editor,body:not(.show-preview) .preview-pane{display:none}
+}
+@media print{
+  .topbar,.editor{display:none!important}
+  .app{display:block;height:auto}
+  .preview-pane{display:block!important;overflow:visible;height:auto;padding:0}
+}
+
+/* Layout del documento (stile manuale): usato sia in anteprima sia in stampa/PDF */
+.paper{--ink:#1c1815;--red:#58180D;--red2:#8c2514;max-width:820px;margin:0 auto;padding:18px;background:#f7f3e8;color:var(--ink);font:9.5pt/1.35 'EB Garamond','Georgia',serif;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.paper h1,.paper h2,.paper h3{font-family:'Cinzel',serif;color:var(--red)}
+.cover{text-align:center;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--red)}
+.cover h1{margin:0;font-size:22pt;font-weight:900}
+.cover p{margin:4px 0 0;font-style:italic}
+.toc{margin:0 0 16px;padding:8px 14px;background:#fcfaf5;border:1px solid #d8ccb8;font-size:10pt}
+.toc h3{margin:0 0 4px;font-size:11pt}
+.level{margin-bottom:24px;padding:16px;background:#fcfaf5;border:1px solid #d8ccb8;border-radius:4px;break-after:page}
+.level:last-child{break-after:auto}
+.level-title{margin:0 0 12px;text-align:center;font-size:15pt;letter-spacing:1px}
+
+/* Luogo */
+.poi-card{margin-bottom:16px;padding:12px 14px;background:linear-gradient(135deg,#fdfbf7,#f4ede0);border:1px solid #c9baa2;border-left:4px solid var(--red);border-radius:2px;box-shadow:inset 0 0 30px rgba(194,181,155,.15)}
+.poi-title{margin:0 0 6px;padding-bottom:3px;font-size:11pt;letter-spacing:.5px;border-bottom:1px solid #d8ccb8}
+.env-image{width:100%;aspect-ratio:16/9;margin-bottom:8px;overflow:hidden;background:#dfd5c0;border:1px solid #7a2012;border-radius:2px}
+.env-image img,.entity-pic img{width:100%;height:100%;object-fit:cover;display:block}
+.read-aloud{margin:8px 0;padding:8px 12px;font-size:9pt;font-style:italic;text-align:justify;background:#f1ebd9;border:1px solid #e2dac9;border-left:3px solid var(--red2)}
+.read-aloud::first-letter{float:left;margin-right:4px;font:700 20pt/.8 'Cinzel',serif;color:var(--red)}
+.specs{margin-bottom:8px;padding:5px 8px;font-size:8pt;background:#eae1ce;border:1px solid #d4c8b0;border-radius:2px}
+.specs strong,.sub-title{font-family:'Cinzel',serif;color:var(--red)}
+.sub{margin-top:8px;padding-top:6px;font-size:9pt;text-align:justify;border-top:1px dashed #cbbea8}
+.sub-title{display:block;margin-bottom:4px;font-size:9.5pt;font-weight:700;letter-spacing:.5px}
+
+/* Schede PNG / Oggetto / Fazione / Sessione */
+.entity{--c:var(--red);--c2:var(--red2);--b1:#f7f2e4;--b2:#ece3cf;--tag:#eee7d8;margin:8px 0;padding:8px 10px;overflow:hidden;font-size:8.5pt;background:linear-gradient(135deg,var(--b1),var(--b2));border:1px solid #cbbea8;border-left:3px solid var(--c);border-radius:2px;break-inside:avoid}
+.entity--oggetto{--c:#b8860b;--c2:#996515;--b1:#fbf7ee;--b2:#f1e7d0;--tag:#f3edd9}
+.entity--fazione{--c:#374151;--c2:#374151;--b1:#f4f4f2;--b2:#e6e5e0;--tag:#eae9e5}
+.entity--sessione{--c:#2f5d3a;--c2:#2f5d3a;--b1:#f3f6ee;--b2:#e3ebd9;--tag:#eaf0e2}
+.entity-name{margin-bottom:8px;padding:4px 8px;font:700 9.5pt 'Cinzel',serif;color:var(--c);background:var(--tag);border:1px solid #c9baa2;border-left:3px solid var(--c);border-radius:2px}
+.entity-pic{float:left;width:160px;aspect-ratio:4/3;margin:0 12px 4px 0;overflow:hidden;background:#ded4be;border:1px solid var(--c);border-radius:2px}
+.entity-field{margin-bottom:4px;text-align:justify}
+.entity-label{margin-right:4px;font:700 8pt 'Cinzel',serif;color:var(--c2)}
+
+/* Mostro, tabella, nota */
+.stat{margin:8px 0;padding:8px 10px;font-size:8.5pt;background:#f4ede0;border:1px solid #cbbea8;border-top:3px solid var(--red);break-inside:avoid}
+.stat-name{font:700 11pt 'Cinzel',serif;color:var(--red)}
+.stat-type{margin-bottom:4px;font-style:italic;color:#4a3e35}
+.stat-line{margin:1px 0}
+.stat-section{margin-top:4px;font:700 8.5pt 'Cinzel',serif;color:var(--red2);border-bottom:1px dashed #cbbea8}
+.stat-table,.data-table{width:100%;border-collapse:collapse}
+.stat-table{margin:4px 0;text-align:center}
+.stat-table th,.data-table th{padding:2px 4px;font:700 8pt 'Cinzel',serif;color:var(--red);background:#dfd4be;text-align:left}
+.stat-table th{text-align:center}
+.table-title{margin-top:8px;font:700 9.5pt 'Cinzel',serif;color:var(--red)}
+.data-table{margin:2px 0 8px;font-size:8.5pt;break-inside:avoid}
+.data-table td{padding:2px 6px;border-bottom:1px solid #d8ccb8}
+.note{margin:8px 0;text-align:justify}
+.note h3{margin:0 0 4px;font-size:10.5pt}
+
+@page{size:A4;margin:14mm 12mm;@bottom-right{content:counter(page);font:8pt 'Cinzel',serif;color:#8c2514}}
+@media print{
+  html,body{background:#f7f3e8!important}
+  .paper{max-width:none;padding:0;box-shadow:none}
+  .level{padding:0;border:0}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <h1>Lore PDF Generator</h1>
+    <span class="tabs">
+      <button id="tab-editor" type="button">Editor</button>
+      <button id="tab-preview" type="button">Anteprima</button>
+    </span>
+    <button id="btn-new" type="button">Nuovo</button>
+    <button id="btn-sample" type="button">Esempio</button>
+    <button id="btn-import" type="button">Importa JSON</button>
+    <button id="btn-export" type="button">Esporta JSON</button>
+    <button id="btn-theme" type="button">Tema</button>
+    <button id="btn-pdf" type="button" class="primary">Esporta PDF</button>
+    <input id="file-import" type="file" accept="application/json" hidden>
+  </header>
+  <main class="app">
+    <section id="editor" class="editor" aria-label="Editor"></section>
+    <section class="preview-pane" aria-label="Anteprima">
+      <article id="document" class="paper"></article>
+    </section>
+  </main>
+  <script>
+(() => {
+'use strict';
+// --- js/utils/format.js ---
+const uid = () => Math.random().toString(36).slice(2, 9);
+
+const esc = (s) =>
+  String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
+/** Testo con **grassetto**, *corsivo* e a capo. */
+const inline = (s) =>
+  esc(s)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/\n/g, '<br>');
+
+const lines = (s) => String(s ?? '').split('\n').filter((l) => l.trim());
+
+/** Una riga = un punto elenco (il "- " iniziale è facoltativo). */
+const bullets = (s) =>
+  lines(s).map((l) => '&bull; ' + inline(l.replace(/^[-•]\s*/, ''))).join('<br>');
+
+/** 14 -> "14 (+2)" */
+const modifier = (v) => {
+  const n = parseInt(v, 10);
+  if (Number.isNaN(n)) return '–';
+  const m = Math.floor((n - 10) / 2);
+  return `${n} (${m >= 0 ? '+' : ''}${m})`;
+};
+
+const slug = (s) =>
+  String(s || 'documento').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'documento';
+
+// --- js/utils/image.js ---
+/** Ridimensiona un'immagine e la restituisce come data URI JPEG (per non appesantire il salvataggio). */
+function resizeImage(file, max = 900, quality = 0.8) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = () => {
+        const k = Math.min(1, max / Math.max(img.width, img.height));
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.width * k);
+        c.height = Math.round(img.height * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        resolve(c.toDataURL('image/jpeg', quality));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// --- js/data/blockTypes.js ---
+/**
+ * Definizione dei tipi di blocco.
+ * Per aggiungerne uno nuovo: 1) descrivilo qui, 2) aggiungi il renderer in render/renderers.js.
+ * kind: 'text' | 'textarea' | 'image'
+ */
+const t = (key, label) => ({ key, label, kind: 'text' });
+const a = (key, label) => ({ key, label, kind: 'textarea' });
+const i = (key, label) => ({ key, label, kind: 'image' });
+
+const BLOCK_TYPES = {
+  luogo: {
+    label: 'Luogo',
+    fields: [
+      t('titolo', 'Titolo del luogo'), i('img', 'Immagine ambientale (16:9)'),
+      a('lettura', 'Testo da leggere ad alta voce'),
+      t('orari', 'Orari'), t('permessi', 'Permessi'), t('sorv', 'Sorveglianza & Rischi'),
+      a('vie', 'Vie d’accesso (una per riga)'), a('aree', 'Aree & Settori (una per riga)'),
+    ],
+  },
+  png: {
+    label: 'PNG',
+    fields: [
+      t('nome', 'Nome'), t('razza', 'Razza'), t('ruolo', 'Ruolo'), i('img', 'Ritratto'),
+      a('aspetto', 'Aspetto Fisico & Vestiario'), a('segni', 'Segni Particolari, Prossemica & Voce'),
+      a('psi', 'Psicologia & Reazioni al Tavolo'), a('arg', 'Argomenti Preferiti'),
+      a('segr', 'Segreti, Tariffe & Nozioni Rivelabili'),
+    ],
+  },
+  oggetto: {
+    label: 'Oggetto',
+    fields: [
+      t('nome', 'Nome'), t('sub', 'Sottotitolo'), i('img', 'Immagine'),
+      a('natura', 'Natura & Manifattura'), a('prop', 'Proprietà & Meccanica d’Uso'),
+      a('coll', 'Collocazione & Come Ottenerlo'),
+    ],
+  },
+  fazione: {
+    label: 'Fazione',
+    fields: [
+      t('nome', 'Nome'), t('sub', 'Sottotitolo'), i('img', 'Emblema'),
+      a('emb', 'Emblema & Simbologia'), a('ruolo', 'Ruolo, Influenza & Struttura'),
+      a('segni', 'Segni di Riconoscimento & Gergo'), a('rapp', 'Rapporti & Rivalità'),
+    ],
+  },
+  mostro: {
+    label: 'Mostro / Statistiche',
+    fields: [
+      t('nome', 'Nome'), t('tipo', 'Tipo (es. Umanoide Medio, Neutrale)'),
+      t('ca', 'Classe Armatura'), t('pf', 'Punti Ferita'), t('vel', 'Velocità'),
+      t('car', 'FOR, DES, COS, INT, SAG, CAR (es. 13,12,14,8,10,9)'),
+      t('abil', 'Abilità'), t('sensi', 'Sensi'), t('ling', 'Linguaggi'), t('sfida', 'Sfida'),
+      a('tratti', 'Tratti Speciali'), a('azioni', 'Azioni'),
+    ],
+  },
+  tabella: {
+    label: 'Tabella / Listino',
+    fields: [t('titolo', 'Titolo'), a('righe', 'Una riga per voce, colonne separate da | (la prima riga è l’intestazione)')],
+  },
+  sessione: {
+    label: 'Diario di Sessione',
+    fields: [
+      t('num', 'Numero sessione'), t('titolo', 'Titolo'), t('data', 'Data'),
+      a('riassunto', 'Riassunto'), a('eventi', 'Eventi chiave'), a('png', 'PNG incontrati'),
+      a('bottino', 'Bottino & Ricompense'), a('ganci', 'Ganci per la prossima sessione'),
+    ],
+  },
+  nota: {
+    label: 'Nota',
+    fields: [t('titolo', 'Titolo (facoltativo)'), a('testo', 'Testo')],
+  },
+};
+
+/** Blocchi che si annidano dentro l'ultimo "Luogo" aperto. */
+const NESTED = new Set(['png', 'oggetto', 'fazione', 'mostro', 'tabella']);
+
+const titleOf = (block) => block.data.titolo || block.data.nome || '(senza titolo)';
+
+// --- js/data/sample.js ---
+/** Documento di esempio con contenuti INVENTATI, solo per mostrare i blocchi disponibili. */
+const SAMPLE = {
+  title: 'Le Cronache di Brumafonda',
+  subtitle: 'Guida del Master — testo di esempio',
+  toc: true,
+  sections: [
+    {
+      title: 'Capitolo I — Il Porto delle Lanterne',
+      blocks: [
+        {
+          type: 'luogo', open: false,
+          data: {
+            titolo: 'Il Molo delle Lanterne Spente',
+            lettura: 'Una foschia color latte risale dal mare e inghiotte le prime luci del mattino. Lungo il molo di legno nero, decine di lanterne di quarzo pendono da pali storti, tutte spente da quando il faro ha smesso di brillare. Odore di alghe, olio di balena e pane bruciato; da qualche parte una campana batte tre colpi lenti.',
+            orari: 'Sempre aperto; traffico intenso all’alba',
+            permessi: 'Ormeggio: 5 ma a notte',
+            sorv: 'Due guardie del porto armate di arpioni, ronda ogni ora',
+            vie: '- **Via dei Cordai:** stradina lastricata che sale verso il mercato.\n- **Scala dei Pescatori:** gradini viscidi che scendono alle barche.',
+            aree: '- **Il Faro Spento:** torre di pietra bianca sul capo orientale, chiusa da una porta di ferro.\n- **La Taverna del Granchio Zoppo:** locanda a due piani, ritrovo dei marinai.',
+          },
+        },
+        {
+          type: 'png', open: false,
+          data: {
+            nome: 'Ilda Fenrow', razza: 'Nana', ruolo: 'Capobanchina',
+            aspetto: 'Cinquantenne alta 130 cm per 70 kg, spalle larghe e trecce rosso rame fermate da anelli di ottone. Indossa un lungo cappotto cerato e guanti da scaricatore.',
+            segni: 'Odore di catrame e sale. Batte due volte il bastone a terra prima di parlare; voce roca e decisa.',
+            psi: 'Pragmatica e testarda. Ha a cuore i pescatori più dei commercianti; si addolcisce con chi porta rispetto e pesce fresco.',
+            arg: 'Maree, tariffe di ormeggio, la vecchia gloria del faro.',
+            segr: 'Affitta ormeggi (**5 ma** a notte). Se ben trattata, rivela che il faro si è spento la notte in cui è sparito il custode, *Orlo Vanti*.',
+          },
+        },
+        {
+          type: 'oggetto', open: false,
+          data: {
+            nome: 'Lanterna di Quarzo Fioco', sub: 'Oggetto magico, richiede sintonia',
+            natura: 'Lanterna di ottone con un cristallo di quarzo opaco al posto della fiamma.',
+            prop: 'Emette luce fioca per 6 metri. Diventa blu se un non morto si trova entro 9 metri.',
+            coll: 'Appesa nell’ufficio di Ilda Fenrow; la cede in cambio di un favore.',
+          },
+        },
+        {
+          type: 'fazione', open: false,
+          data: {
+            nome: 'La Gilda dei Fanalisti', sub: 'Custodi delle luci del porto',
+            emb: 'Una fiamma stilizzata dentro un cerchio d’ottone.',
+            ruolo: 'Mantengono le lanterne e il faro; ora in difficoltà per la scomparsa del custode.',
+            segni: 'Spille d’ottone sul bavero e gergo fatto di segnali luminosi.',
+            rapp: 'Alleati dei pescatori, diffidenti verso la Guardia del Porto.',
+          },
+        },
+        {
+          type: 'mostro', open: false,
+          data: {
+            nome: 'Granchio d’Ombra', tipo: 'Mostruosità Media, senza allineamento',
+            ca: '14 (armatura naturale)', pf: '27 (5d8 + 5)', vel: '6 m, nuotare 9 m',
+            car: '14,12,13,2,10,4', abil: 'Furtività +3',
+            sensi: 'Scurovisione 18 m, Percezione passiva 10', ling: '—', sfida: '1 (200 PE)',
+            tratti: '**Anfibio.** Respira aria e acqua.\n**Mimetismo d’Ombra.** Vantaggio a Furtività in luce fioca o buio.',
+            azioni: '**Chela.** *Attacco con arma da mischia:* +4 al tiro per colpire, portata 1,5 m, un bersaglio. *Colpito:* 7 (1d8 + 3) danni contundenti; il bersaglio è afferrato (CD 12).',
+          },
+        },
+        {
+          type: 'tabella', open: false,
+          data: {
+            titolo: 'Listino della Taverna del Granchio Zoppo',
+            righe: 'Voce | Prezzo | Note\nZuppa di molluschi | 3 mr | Con pane\nBirra scura | 4 mr | Boccale\nStanza condivisa | 2 ma | Per notte\nStanza privata | 8 ma | Con serratura',
+          },
+        },
+      ],
+    },
+    {
+      title: 'Capitolo II — Diario di Campagna',
+      blocks: [
+        {
+          type: 'sessione', open: false,
+          data: {
+            num: '1', titolo: 'Il faro che non brilla', data: '12/03/2026',
+            riassunto: 'Il gruppo arriva a Brumafonda e accetta l’incarico di Ilda Fenrow: scoprire perché il faro è spento.',
+            eventi: '- Scontro con due granchi d’ombra sotto il molo.\n- Trovata la chiave del faro nella tasca di un pescatore.',
+            png: 'Ilda Fenrow, Tobbo il cordaio',
+            bottino: '35 ma, una *Lanterna di Quarzo Fioco*.',
+            ganci: 'Chi ha dato la chiave al pescatore? Il faro è davvero vuoto?',
+          },
+        },
+        {
+          type: 'nota', open: false,
+          data: { titolo: 'Idee per il Master', testo: 'Il custode **Orlo Vanti** è prigioniero in una grotta sotto il faro. Preparare un incontro con i granchi e una prova di nuoto.' },
+        },
+      ],
+    },
+  ],
+};
+
+// --- js/core/Store.js ---
+
+
+
+const move = (arr, i, d) => {
+  const j = i + d;
+  if (j < 0 || j >= arr.length) return;
+  [arr[i], arr[j]] = [arr[j], arr[i]];
+};
+
+/** Stato del documento + persistenza su localStorage. I listener ricevono (doc, structural). */
+class Store {
+  constructor(key = 'lore-pdf-generator:v1') {
+    this.key = key;
+    this.listeners = new Set();
+    this.doc = this.#load();
+  }
+
+  subscribe(fn) { this.listeners.add(fn); return () => this.listeners.delete(fn); }
+
+  #emit(structural) {
+    try { localStorage.setItem(this.key, JSON.stringify(this.doc)); } catch { /* storage non disponibile */ }
+    this.listeners.forEach((fn) => fn(this.doc, structural));
+  }
+
+  #load() {
+    try {
+      const raw = localStorage.getItem(this.key);
+      if (raw) return Store.normalize(JSON.parse(raw));
+    } catch { /* dati corrotti: si riparte dall'esempio */ }
+    return Store.normalize(structuredClone(SAMPLE));
+  }
+
+  static normalize(doc) {
+    doc.title ??= ''; doc.subtitle ??= ''; doc.toc ??= true; doc.sections ??= [];
+    doc.sections.forEach((s) => {
+      s.id ??= uid(); s.title ??= ''; s.blocks ??= [];
+      s.blocks.forEach((b) => { b.id ??= uid(); b.data ??= {}; b.open ??= false; });
+    });
+    return doc;
+  }
+
+  // --- metadati e campi (non strutturali: l'editor non si ridisegna) ---
+  setMeta(key, value) { this.doc[key] = value; this.#emit(false); }
+  setSectionTitle(s, value) { this.doc.sections[s].title = value; this.#emit(false); }
+  setField(s, b, key, value) { this.doc.sections[s].blocks[b].data[key] = value; this.#emit(false); }
+
+  // --- struttura ---
+  addSection() { this.doc.sections.push({ id: uid(), title: 'Nuova sezione', blocks: [] }); this.#emit(true); }
+  removeSection(s) { this.doc.sections.splice(s, 1); this.#emit(true); }
+  moveSection(s, d) { move(this.doc.sections, s, d); this.#emit(true); }
+  addBlock(s, type) { this.doc.sections[s].blocks.push({ id: uid(), type, open: true, data: {} }); this.#emit(true); }
+  removeBlock(s, b) { this.doc.sections[s].blocks.splice(b, 1); this.#emit(true); }
+  moveBlock(s, b, d) { move(this.doc.sections[s].blocks, b, d); this.#emit(true); }
+  toggleBlock(s, b) { const x = this.doc.sections[s].blocks[b]; x.open = !x.open; this.#emit(true); }
+  duplicateBlock(s, b) {
+    const blocks = this.doc.sections[s].blocks;
+    const copy = structuredClone(blocks[b]);
+    copy.id = uid();
+    blocks.splice(b + 1, 0, copy);
+    this.#emit(true);
+  }
+
+  // --- documento intero ---
+  replace(doc) { this.doc = Store.normalize(doc); this.#emit(true); }
+  reset() { this.replace(structuredClone(SAMPLE)); }
+  blank() { this.replace({ title: 'Nuovo documento', subtitle: '', toc: true, sections: [] }); }
+  toJSON() { return JSON.stringify(this.doc, null, 2); }
+}
+
+// --- js/render/renderers.js ---
+
+
+const field = (label, v) =>
+  v ? `<div class="entity-field"><strong class="entity-label">${label}:</strong> ${inline(v)}</div>` : '';
+const pic = (cls, img) => (img ? `<div class="${cls}"><img src="${esc(img)}" alt=""></div>` : '');
+const sub = (title, v) => `<div class="sub"><span class="sub-title">${title}</span>${bullets(v)}</div>`;
+const statLine = (label, v) => (v ? `<div class="stat-line"><strong>${label}:</strong> ${inline(v)}</div>` : '');
+const entity = (mod, name, img, body) =>
+  `<div class="entity entity--${mod}"><div class="entity-name">${name}</div>${pic('entity-pic', img)}${body}</div>`;
+const withSub = (name, s) => esc(name) + (s ? ` (${esc(s)})` : '');
+
+/**
+ * Un renderer per tipo di blocco: (data, ctx) => stringa HTML.
+ * Il renderer "luogo" restituisce una scheda APERTA: la chiude DocumentRenderer.
+ */
+const renderers = {
+  luogo(d, { index }) {
+    const specs = [['Orari', d.orari], ['Permessi', d.permessi], ['Sorveglianza &amp; Rischi', d.sorv]]
+      .filter(([, v]) => v)
+      .map(([l, v]) => `<strong>${l}:</strong> ${inline(v)}`)
+      .join(' &nbsp;|&nbsp; ');
+    return `<section class="poi-card"><h3 class="poi-title">${index}. ${esc(d.titolo)}</h3>`
+      + pic('env-image', d.img)
+      + (d.lettura ? `<div class="read-aloud">${inline(d.lettura)}</div>` : '')
+      + (specs ? `<div class="specs">${specs}</div>` : '')
+      + (d.vie ? sub('Vie d’Accesso &amp; Snodi', d.vie) : '')
+      + (d.aree ? sub('Aree, Settori &amp; PNG Residenti', d.aree) : '');
+  },
+
+  png(d) {
+    const who = [d.razza, d.ruolo].filter(Boolean).map(esc).join(' — ');
+    return entity('png', esc(d.nome) + (who ? ` (${who})` : ''), d.img,
+      field('Aspetto Fisico &amp; Vestiario', d.aspetto)
+      + field('Segni Particolari, Prossemica &amp; Voce', d.segni)
+      + field('Psicologia &amp; Reazioni al Tavolo', d.psi)
+      + field('Argomenti Preferiti', d.arg)
+      + field('Segreti, Tariffe &amp; Nozioni Rivelabili', d.segr));
+  },
+
+  oggetto(d) {
+    return entity('oggetto', withSub(d.nome, d.sub), d.img,
+      field('Natura &amp; Manifattura', d.natura)
+      + field('Proprietà &amp; Meccanica d’Uso', d.prop)
+      + field('Collocazione &amp; Come Ottenerlo', d.coll));
+  },
+
+  fazione(d) {
+    return entity('fazione', withSub(d.nome, d.sub), d.img,
+      field('Emblema &amp; Simbologia', d.emb)
+      + field('Ruolo, Influenza &amp; Struttura', d.ruolo)
+      + field('Segni di Riconoscimento &amp; Gergo', d.segni)
+      + field('Rapporti &amp; Rivalità', d.rapp));
+  },
+
+  mostro(d) {
+    const names = ['FOR', 'DES', 'COS', 'INT', 'SAG', 'CAR'];
+    const v = String(d.car ?? '').split(/[,\s/]+/).filter(Boolean);
+    const table = v.length
+      ? `<table class="stat-table"><tr>${names.map((n) => `<th>${n}</th>`).join('')}</tr>`
+        + `<tr>${names.map((_, i) => `<td>${modifier(v[i])}</td>`).join('')}</tr></table>`
+      : '';
+    return `<div class="stat"><div class="stat-name">${esc(d.nome)}</div><div class="stat-type">${esc(d.tipo)}</div>`
+      + statLine('Classe Armatura', d.ca) + statLine('Punti Ferita', d.pf) + statLine('Velocità', d.vel)
+      + table
+      + statLine('Abilità', d.abil) + statLine('Sensi', d.sensi) + statLine('Linguaggi', d.ling) + statLine('Sfida', d.sfida)
+      + (d.tratti ? `<div class="stat-section">Tratti Speciali</div><div class="stat-line">${inline(d.tratti)}</div>` : '')
+      + (d.azioni ? `<div class="stat-section">Azioni</div><div class="stat-line">${inline(d.azioni)}</div>` : '')
+      + '</div>';
+  },
+
+  tabella(d) {
+    const rows = lines(d.righe).map((r) => r.split('|').map((c) => inline(c.trim())));
+    if (!rows.length) return '';
+    const [head, ...body] = rows;
+    return (d.titolo ? `<div class="table-title">${esc(d.titolo)}</div>` : '')
+      + `<table class="data-table"><thead><tr>${head.map((c) => `<th>${c}</th>`).join('')}</tr></thead>`
+      + `<tbody>${body.map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  },
+
+  sessione(d) {
+    const name = `Sessione ${esc(d.num)}` + (d.titolo ? ` — ${esc(d.titolo)}` : '') + (d.data ? ` (${esc(d.data)})` : '');
+    return entity('sessione', name, '',
+      field('Riassunto', d.riassunto) + field('Eventi Chiave', d.eventi) + field('PNG Incontrati', d.png)
+      + field('Bottino &amp; Ricompense', d.bottino) + field('Ganci per la Prossima Sessione', d.ganci));
+  },
+
+  nota(d) {
+    return `<div class="note">${d.titolo ? `<h3>${esc(d.titolo)}</h3>` : ''}${inline(d.testo)}</div>`;
+  },
+};
+
+// --- js/render/DocumentRenderer.js ---
+
+
+
+
+/** Trasforma il documento (JSON) nell'HTML impaginato come i manuali di riferimento. */
+class DocumentRenderer {
+  render(doc) {
+    let html = `<header class="cover"><h1>${esc(doc.title)}</h1>${doc.subtitle ? `<p>${esc(doc.subtitle)}</p>` : ''}</header>`;
+    if (doc.toc && doc.sections.length) html += this.#toc(doc.sections);
+    return html + doc.sections.map((s) => this.#section(s)).join('');
+  }
+
+  #toc(sections) {
+    return '<nav class="toc"><h3>Indice</h3>'
+      + sections.map((s, i) => `<div>${i + 1}. ${esc(s.title)}</div>`).join('') + '</nav>';
+  }
+
+  #section(section) {
+    let html = `<section class="level"><h2 class="level-title">${esc(section.title)}</h2>`;
+    let open = false;
+    let index = 0;
+    const close = () => { if (open) { html += '</section>'; open = false; } };
+
+    for (const block of section.blocks) {
+      if (block.type === 'luogo') { close(); open = true; index++; }
+      else if (!NESTED.has(block.type)) close();
+      html += renderers[block.type]?.(block.data, { index }) ?? '';
+    }
+    close();
+    return html + '</section>';
+  }
+}
+
+// --- js/ui/Preview.js ---
+class Preview {
+  constructor(element, renderer) {
+    this.element = element;
+    this.renderer = renderer;
+  }
+
+  render(doc) {
+    this.element.innerHTML = this.renderer.render(doc);
+    document.title = doc.title || 'Lore PDF Generator';
+  }
+}
+
+// --- js/ui/Editor.js ---
+
+
+
+
+/** Pannello di modifica: form generati dalla definizione dei tipi di blocco. */
+class Editor {
+  constructor(root, store) {
+    this.root = root;
+    this.store = store;
+    root.addEventListener('input', (e) => this.#onInput(e));
+    root.addEventListener('change', (e) => this.#onChange(e));
+    root.addEventListener('click', (e) => this.#onClick(e));
+    store.subscribe((_doc, structural) => { if (structural) this.render(); });
+  }
+
+  render() {
+    const { doc } = this.store;
+    this.root.innerHTML = `
+      <p class="hint">Usa **grassetto** e *corsivo*. PNG, Oggetti, Fazioni, Mostri e Tabelle si annidano sotto l'ultimo Luogo.</p>
+      <label>Titolo del documento</label>
+      <input type="text" data-meta="title" value="${esc(doc.title)}">
+      <label>Sottotitolo</label>
+      <input type="text" data-meta="subtitle" value="${esc(doc.subtitle)}">
+      <label class="check"><input type="checkbox" data-meta="toc" ${doc.toc ? 'checked' : ''}> Mostra l'indice nel PDF</label>
+      ${doc.sections.map((s, si) => this.#section(s, si)).join('')}
+      <button type="button" data-action="section-add">+ Nuova sezione</button>`;
+  }
+
+  #section(section, si) {
+    const addButtons = Object.entries(BLOCK_TYPES)
+      .map(([type, def]) => `<button type="button" class="sm" data-action="block-add" data-s="${si}" data-type="${type}">+ ${def.label}</button>`)
+      .join('');
+    return `<div class="section">
+      <div class="row">
+        <input type="text" data-section-title="${si}" value="${esc(section.title)}" placeholder="Titolo sezione / capitolo / sessione">
+        <button type="button" class="sm" data-action="section-up" data-s="${si}">↑</button>
+        <button type="button" class="sm" data-action="section-down" data-s="${si}">↓</button>
+        <button type="button" class="sm" data-action="section-del" data-s="${si}">✕</button>
+      </div>
+      ${section.blocks.map((b, bi) => this.#block(b, si, bi)).join('')}
+      <div class="add-row">${addButtons}</div>
+    </div>`;
+  }
+
+  #block(block, si, bi) {
+    const def = BLOCK_TYPES[block.type];
+    const ref = `data-s="${si}" data-b="${bi}"`;
+    const body = block.open
+      ? `<div class="block-body">${def.fields.map((f) => this.#field(f, block.data[f.key], si, bi)).join('')}</div>`
+      : '';
+    return `<div class="block">
+      <div class="block-head">
+        <span class="block-type">${def.label}</span>
+        <b class="block-title" data-action="block-toggle" ${ref}>${esc(titleOf(block))}</b>
+        <button type="button" class="sm" data-action="block-dup" ${ref} title="Duplica">⧉</button>
+        <button type="button" class="sm" data-action="block-up" ${ref}>↑</button>
+        <button type="button" class="sm" data-action="block-down" ${ref}>↓</button>
+        <button type="button" class="sm" data-action="block-del" ${ref}>✕</button>
+      </div>${body}</div>`;
+  }
+
+  #field(f, value, si, bi) {
+    const ref = `data-s="${si}" data-b="${bi}" data-k="${f.key}"`;
+    const label = `<label>${f.label}</label>`;
+    if (f.kind === 'text') return `${label}<input type="text" ${ref} value="${esc(value)}">`;
+    if (f.kind === 'textarea') return `${label}<textarea ${ref}>${esc(value)}</textarea>`;
+    return `${label}<input type="file" accept="image/*" ${ref}>`
+      + (value ? `<img class="thumb" src="${esc(value)}" alt=""> <button type="button" class="sm" data-action="image-clear" ${ref}>Rimuovi</button>` : '');
+  }
+
+  #onInput(e) {
+    const t = e.target;
+    if (t.type === 'file') return;
+    const d = t.dataset;
+    if (d.meta) return this.store.setMeta(d.meta, t.type === 'checkbox' ? t.checked : t.value);
+    if (d.sectionTitle !== undefined) return this.store.setSectionTitle(+d.sectionTitle, t.value);
+    if (d.k) {
+      this.store.setField(+d.s, +d.b, d.k, t.value);
+      if (d.k === 'titolo' || d.k === 'nome') {
+        const label = t.closest('.block')?.querySelector('.block-title');
+        if (label) label.textContent = t.value || '(senza titolo)';
+      }
+    }
+  }
+
+  async #onChange(e) {
+    const t = e.target;
+    if (t.type !== 'file' || !t.files[0]) return;
+    const { s, b, k } = t.dataset;
+    this.store.setField(+s, +b, k, await resizeImage(t.files[0]));
+    this.render();
+  }
+
+  #onClick(e) {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    const { action, type } = btn.dataset;
+    const s = +btn.dataset.s;
+    const b = +btn.dataset.b;
+    const st = this.store;
+    switch (action) {
+      case 'section-add': return st.addSection();
+      case 'section-up': return st.moveSection(s, -1);
+      case 'section-down': return st.moveSection(s, 1);
+      case 'section-del': return confirm('Eliminare la sezione?') && st.removeSection(s);
+      case 'block-add': return st.addBlock(s, type);
+      case 'block-up': return st.moveBlock(s, b, -1);
+      case 'block-down': return st.moveBlock(s, b, 1);
+      case 'block-dup': return st.duplicateBlock(s, b);
+      case 'block-toggle': return st.toggleBlock(s, b);
+      case 'block-del': return confirm('Eliminare il blocco?') && st.removeBlock(s, b);
+      case 'image-clear': st.setField(s, b, btn.dataset.k, ''); return this.render();
+    }
+  }
+}
+
+// --- js/ui/Toolbar.js ---
+
+
+const $ = (id) => document.getElementById(id);
+
+/** Pulsanti della barra superiore: file JSON, tema, stampa/PDF, schede mobile. */
+class Toolbar {
+  constructor(store) {
+    this.store = store;
+    this.#applyTheme(this.#savedTheme());
+
+    $('btn-pdf').onclick = () => { document.body.classList.add('show-preview'); window.print(); };
+    $('btn-export').onclick = () => this.#download();
+    $('btn-import').onclick = () => $('file-import').click();
+    $('file-import').onchange = (e) => this.#import(e.target.files[0], e.target);
+    $('btn-new').onclick = () => confirm('Creare un documento vuoto? Il lavoro attuale andrà perso se non l\'hai esportato.') && store.blank();
+    $('btn-sample').onclick = () => confirm('Caricare il documento di esempio al posto di quello attuale?') && store.reset();
+    $('btn-theme').onclick = () => this.#applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+    $('tab-editor').onclick = () => document.body.classList.remove('show-preview');
+    $('tab-preview').onclick = () => document.body.classList.add('show-preview');
+  }
+
+  #savedTheme() {
+    try { return localStorage.getItem('lore-pdf-generator:theme'); } catch { return null; }
+  }
+
+  #applyTheme(theme) {
+    if (!theme) return;
+    document.documentElement.dataset.theme = theme;
+    try { localStorage.setItem('lore-pdf-generator:theme', theme); } catch { /* ignora */ }
+  }
+
+  #download() {
+    const blob = new Blob([this.store.toJSON()], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${slug(this.store.doc.title)}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+
+  async #import(file, input) {
+    if (!file) return;
+    try {
+      const doc = JSON.parse(await file.text());
+      if (!Array.isArray(doc.sections)) throw new Error('formato non valido');
+      this.store.replace(doc);
+    } catch {
+      alert('File JSON non valido.');
+    }
+    input.value = '';
+  }
+}
+
+// --- js/main.js ---
+
+
+
+
+
+
+const store = new Store();
+const preview = new Preview(document.getElementById('document'), new DocumentRenderer());
+const editor = new Editor(document.getElementById('editor'), store);
+new Toolbar(store);
+
+store.subscribe((doc) => preview.render(doc));
+editor.render();
+preview.render(store.doc);
+
+})();
+</script>
+</body>
+</html>

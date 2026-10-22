@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lore PDF Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/document.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1>Lore PDF Generator</h1>
+    <span class="tabs">
+      <button id="tab-editor" type="button">Editor</button>
+      <button id="tab-preview" type="button">Anteprima</button>
+    </span>
+    <button id="btn-new" type="button">Nuovo</button>
+    <button id="btn-sample" type="button">Esempio</button>
+    <button id="btn-import" type="button">Importa JSON</button>
+    <button id="btn-export" type="button">Esporta JSON</button>
+    <button id="btn-theme" type="button">Tema</button>
+    <button id="btn-pdf" type="button" class="primary">Esporta PDF</button>
+    <input id="file-import" type="file" accept="application/json" hidden>
+  </header>
+  <main class="app">
+    <section id="editor" class="editor" aria-label="Editor"></section>
+    <section class="preview-pane" aria-label="Anteprima">
+      <article id="document" class="paper"></article>
+    </section>
+  </main>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
