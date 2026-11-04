@@ -71,7 +71,7 @@ textarea{min-height:70px;resize:vertical}
 .level-title{margin:0 0 14px;text-align:center;font-size:14pt;letter-spacing:1px}
 
 /* Scheda del luogo */
-.poi-card{margin-bottom:16px;padding:12px 14px;background:linear-gradient(135deg,#fdfbf7 0%,#f4ede0 100%);border:1px solid #c9baa2;border-left:4px solid #58180D;border-radius:2px;box-shadow:0 2px 5px rgba(0,0,0,.05),inset 0 0 30px rgba(194,181,155,.15);break-inside:avoid}
+.poi-card{margin-bottom:16px;padding:12px 14px;background:linear-gradient(135deg,#fdfbf7 0%,#f4ede0 100%);border:1px solid #c9baa2;border-left:4px solid #58180D;border-radius:2px;box-shadow:0 2px 5px rgba(0,0,0,.05),inset 0 0 30px rgba(194,181,155,.15)}
 .poi-title{font-family:'Cinzel',serif;font-weight:700;color:#58180D;font-size:11pt;letter-spacing:.5px;margin-bottom:6px;border-bottom:1px solid #d8ccb8;padding-bottom:3px}
 .env-asset-box{width:100%;aspect-ratio:16/9;background-color:#dfd5c0;border:1px solid #7a2012;box-shadow:inset 0 0 10px rgba(0,0,0,.1);margin-bottom:8px;border-radius:2px;overflow:hidden}
 .env-asset-box img{width:100%;height:100%;object-fit:cover;display:block}
@@ -121,16 +121,27 @@ textarea{min-height:70px;resize:vertical}
 
 /* Tabelle e note */
 .table-title{margin-top:8px;break-after:avoid;font-family:'Cinzel',serif;font-weight:700;font-size:9pt;color:#58180D}
-.data-table{width:100%;margin:2px 0 8px;font-size:8pt;border-collapse:collapse;break-inside:avoid}
+.data-table{width:100%;margin:2px 0 8px;font-size:8pt;border-collapse:collapse}
+.data-table tr{break-inside:avoid}
 .data-table th{padding:2px 6px;font-family:'Cinzel',serif;font-size:7.8pt;color:#58180D;background:#dfd4be;text-align:left}
 .data-table td{padding:2px 6px;border-bottom:1px solid #d8ccb8;vertical-align:top}
 .note{margin:8px 0;text-align:justify}
 .note h3{margin:0 0 4px;font-size:10pt}
 
 @page{size:A4;margin:14mm 12mm 14mm 12mm;@bottom-right{content:counter(page);font-family:'Cinzel',serif;font-size:8pt;color:#8c2514}}
+/*
+ * Impaginazione PDF: le schede lunghe possono spezzarsi tra due pagine (niente pagine vuote),
+ * ma titoli, intestazioni e immagini restano attaccati al contenuto che introducono.
+ */
+.level-title,.poi-title,.poi-sub-block-title,.settore-title,.npc-name,.item-name,.faction-name,.table-title,.stat-section-title{break-after:avoid}
+.env-asset-box,.npc-portrait-box,.item-portrait-box,.faction-portrait-box,.read-aloud,.poi-specs,.stat-block,.stat-table{break-inside:avoid}
+.card-field{orphans:3;widows:3}
+
 @media print{
   html,body{background:#f7f3e8!important}
   .paper{max-width:none;padding:0;box-shadow:none}
+  .level-wrapper{padding:0;border:0;background:transparent}
+  .poi-card{box-shadow:none}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 
