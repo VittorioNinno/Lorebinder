@@ -10,5 +10,16 @@ const editor = new Editor(document.getElementById('editor'), store);
 new Toolbar(store);
 
 store.subscribe((doc) => preview.render(doc));
-editor.render();
-preview.render(store.doc);
+try {
+  editor.render();
+  preview.render(store.doc);
+} catch (e) {
+  // Documento salvato non visualizzabile: niente pagina bianca, si offre un backup e il ripristino
+  const root = document.getElementById('editor');
+  root.innerHTML = `<p class="hint"><strong>Il documento salvato nel browser non può essere mostrato</strong> (${e.message}).
+    Prova prima a ricaricare la pagina con Ctrl+F5; se il problema resta, scarica il backup e ripristina l'esempio.</p>
+    <button type="button" id="rescue-backup">Scarica backup JSON</button>
+    <button type="button" id="rescue-reset">Ripristina l'esempio</button>`;
+  document.getElementById('rescue-backup').onclick = () => document.getElementById('btn-export').click();
+  document.getElementById('rescue-reset').onclick = () => store.reset();
+}
