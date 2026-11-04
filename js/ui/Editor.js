@@ -16,7 +16,7 @@ export class Editor {
   render() {
     const { doc } = this.store;
     this.root.innerHTML = `
-      <p class="hint">Usa **grassetto** e *corsivo*. PNG, Oggetti, Fazioni, Mostri e Tabelle si annidano sotto l'ultimo Luogo.</p>
+      <p class="hint">Usa **grassetto** e *corsivo*. Aree, PNG, Oggetti, Fazioni, Mostri e Tabelle si annidano sotto l'ultimo Luogo.</p>
       <label>Titolo del documento</label>
       <input type="text" data-meta="title" value="${esc(doc.title)}">
       <label>Sottotitolo</label>
