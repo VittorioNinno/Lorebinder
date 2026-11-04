@@ -14,7 +14,16 @@ export const BLOCK_TYPES = {
       t('titolo', 'Titolo del luogo'), i('img', 'Immagine ambientale (16:9)'),
       a('lettura', 'Testo da leggere ad alta voce'),
       t('orari', 'Orari'), t('permessi', 'Permessi'), t('sorv', 'Sorveglianza & Rischi'),
-      a('vie', 'Vie d’accesso (una per riga)'), a('aree', 'Aree & Settori (una per riga)'),
+      t('pericoli', 'Pericoli Ambientali (facoltativo)'),
+      a('vie', 'Vie d’accesso (una per riga)'),
+      a('aree', 'Aree & Settori in elenco semplice (una per riga; in alternativa usa i blocchi Area)'),
+    ],
+  },
+  area: {
+    label: 'Area / Settore',
+    fields: [
+      t('settore', 'Settore (facoltativo: apre un nuovo raggruppamento, es. SETTORE I: IL QUARTIERE SOLARE)'),
+      t('titolo', 'Nome dell’area'), a('descr', 'Descrizione ambientale'),
     ],
   },
   png: {
@@ -71,6 +80,6 @@ export const BLOCK_TYPES = {
 };
 
 /** Blocchi che si annidano dentro l'ultimo "Luogo" aperto. */
-export const NESTED = new Set(['png', 'oggetto', 'fazione', 'mostro', 'tabella']);
+export const NESTED = new Set(['area', 'png', 'oggetto', 'fazione', 'mostro', 'tabella']);
 
 export const titleOf = (block) => block.data.titolo || block.data.nome || '(senza titolo)';

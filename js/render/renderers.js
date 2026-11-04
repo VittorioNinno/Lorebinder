@@ -15,7 +15,8 @@ const withSub = (name, s) => esc(name) + (s ? ` (${esc(s)})` : '');
  */
 export const renderers = {
   luogo(d, { index }) {
-    const specs = [['Orari', d.orari], ['Permessi', d.permessi], ['Sorveglianza &amp; Rischi', d.sorv]]
+    const specs = [['Orari', d.orari], ['Permessi', d.permessi], ['Sorveglianza &amp; Rischi', d.sorv],
+      ['Pericoli Ambientali', d.pericoli]]
       .filter(([, v]) => v)
       .map(([l, v]) => `<strong>${l}:</strong> ${inline(v)}`)
       .join(' &nbsp;|&nbsp; ');
@@ -25,6 +26,11 @@ export const renderers = {
       + (specs ? `<div class="specs">${specs}</div>` : '')
       + (d.vie ? sub('Vie d’Accesso &amp; Snodi', d.vie) : '')
       + (d.aree ? sub('Aree, Settori &amp; PNG Residenti', d.aree) : '');
+  },
+
+  area(d) {
+    return (d.settore ? `<div class="settore-title">${esc(d.settore)}</div>` : '')
+      + `<div class="area-item">&bull; <strong>${esc(d.titolo)}:</strong> ${inline(d.descr)}</div>`;
   },
 
   png(d) {

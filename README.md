@@ -6,7 +6,8 @@ Nessun backend e nessuna dipendenza: HTML, CSS e JavaScript (moduli ES). I dati 
 ## Funzionalità
 
 - Documento organizzato in sezioni (capitoli, livelli, sessioni) con blocchi riordinabili e duplicabili
-- Otto tipi di blocco: Luogo, PNG, Oggetto, Fazione, Mostro, Tabella, Diario di Sessione, Nota
+- Nove tipi di blocco: Luogo, Area, PNG, Oggetto, Fazione, Mostro, Tabella, Diario di Sessione, Nota
+- Aree e settori annidati nei luoghi, ciascuno con i propri PNG, e intestazioni di gruppo automatiche ("Aree, Settori & PNG Residenti", "Equilibri di Potere & Fazioni")
 - Anteprima in tempo reale con lo stesso layout usato per il PDF
 - Immagini per luoghi, PNG, oggetti e fazioni (ridimensionate automaticamente)
 - Indice automatico facoltativo e numerazione di pagina nel PDF
@@ -46,7 +47,7 @@ Il layout è ottimizzato per Chrome/Edge, che supportano anche la numerazione di
 - Nelle tabelle le colonne si separano con `|` e la prima riga è l'intestazione
 - Nelle schede mostro i sei valori si scrivono separati da virgola (`13,12,14,8,10,9`)
 
-Regola di annidamento: PNG, Oggetto, Fazione, Mostro e Tabella finiscono dentro l'ultimo Luogo che li precede. Diario di Sessione e Nota chiudono la scheda del luogo.
+Regola di annidamento: Area, PNG, Oggetto, Fazione, Mostro e Tabella finiscono dentro l'ultimo Luogo che li precede. Metti ogni Area prima dei PNG che vi risiedono. Diario di Sessione e Nota chiudono la scheda del luogo.
 
 ## Struttura del progetto
 

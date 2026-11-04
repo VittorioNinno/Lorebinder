@@ -16,7 +16,7 @@ export class Editor {
   render() {
     const { doc } = this.store;
     this.root.innerHTML = `
-      <p class="hint">Usa **grassetto** e *corsivo*. PNG, Oggetti, Fazioni, Mostri e Tabelle si annidano sotto l'ultimo Luogo.</p>
+      <p class="hint">Usa **grassetto** e *corsivo*. Aree, PNG, Oggetti, Fazioni, Mostri e Tabelle si annidano sotto l'ultimo Luogo.</p>
       <label>Titolo del documento</label>
       <input type="text" data-meta="title" value="${esc(doc.title)}">
       <label>Sottotitolo</label>
@@ -43,7 +43,7 @@ export class Editor {
   }
 
   #block(block, si, bi) {
-    const def = BLOCK_TYPES[block.type];
+    const def = BLOCK_TYPES[block.type] ?? { label: `Tipo sconosciuto (${block.type})`, fields: [] };
     const ref = `data-s="${si}" data-b="${bi}"`;
     const body = block.open
       ? `<div class="block-body">${def.fields.map((f) => this.#field(f, block.data[f.key], si, bi)).join('')}</div>`

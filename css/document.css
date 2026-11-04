@@ -22,6 +22,12 @@
 .sub{margin-top:8px;padding-top:6px;font-size:9pt;text-align:justify;border-top:1px dashed #cbbea8}
 .sub-title{display:block;margin-bottom:4px;font-size:9.5pt;font-weight:700;letter-spacing:.5px}
 
+/* Aree annidate e intestazioni di gruppo */
+.group-title{margin:12px 0 4px;padding-top:6px;font:700 9.5pt 'Cinzel',serif;letter-spacing:.5px;color:var(--red);border-top:1px dashed #cbbea8}
+.settore-title{margin:10px 0 4px;font:700 9pt 'Cinzel',serif;letter-spacing:.5px;text-transform:uppercase;color:var(--red2)}
+.area-item{margin:6px 0;font-size:9pt;text-align:justify}
+.area-item strong{color:var(--ink)}
+
 /* Schede PNG / Oggetto / Fazione / Sessione */
 .entity{--c:var(--red);--c2:var(--red2);--b1:#f7f2e4;--b2:#ece3cf;--tag:#eee7d8;margin:8px 0;padding:8px 10px;overflow:hidden;font-size:8.5pt;background:linear-gradient(135deg,var(--b1),var(--b2));border:1px solid #cbbea8;border-left:3px solid var(--c);border-radius:2px;break-inside:avoid}
 .entity--oggetto{--c:#b8860b;--c2:#996515;--b1:#fbf7ee;--b2:#f1e7d0;--tag:#f3edd9}
@@ -42,7 +48,7 @@
 .stat-table{margin:4px 0;text-align:center}
 .stat-table th,.data-table th{padding:2px 4px;font:700 8pt 'Cinzel',serif;color:var(--red);background:#dfd4be;text-align:left}
 .stat-table th{text-align:center}
-.table-title{margin-top:8px;font:700 9.5pt 'Cinzel',serif;color:var(--red)}
+.table-title{margin-top:8px;break-after:avoid;font:700 9.5pt 'Cinzel',serif;color:var(--red)}
 .data-table{margin:2px 0 8px;font-size:8.5pt;break-inside:avoid}
 .data-table td{padding:2px 6px;border-bottom:1px solid #d8ccb8}
 .note{margin:8px 0;text-align:justify}

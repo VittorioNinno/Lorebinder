@@ -40,12 +40,19 @@ export class Toolbar {
 
   async #import(file, input) {
     if (!file) return;
+    let doc;
     try {
-      const doc = JSON.parse(await file.text());
+      doc = JSON.parse(await file.text());
       if (!Array.isArray(doc.sections)) throw new Error('formato non valido');
-      this.store.replace(doc);
     } catch {
       alert('File JSON non valido.');
+      input.value = '';
+      return;
+    }
+    try {
+      this.store.replace(doc);
+    } catch (e) {
+      alert(`Il file è stato letto ma non può essere mostrato: ${e.message}`);
     }
     input.value = '';
   }
