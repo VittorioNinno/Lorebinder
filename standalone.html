@@ -6,7 +6,7 @@
   <title>Lore PDF Generator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <style>
 :root{--bg:#f4f1ea;--panel:#fff;--text:#1c1815;--muted:#6b625a;--border:#d9d0c0;--accent:#58180D;--accent2:#8c2514;color-scheme:light}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1a1714;--panel:#26211d;--text:#eee7da;--muted:#a39a8c;--border:#3d352d;--accent:#e0866f;--accent2:#b8452e;color-scheme:dark}}
@@ -49,67 +49,88 @@ textarea{min-height:70px;resize:vertical}
   .preview-pane{display:block!important;overflow:visible;height:auto;padding:0}
 }
 
-/* Layout del documento (stile manuale): usato sia in anteprima sia in stampa/PDF */
-.paper{--ink:#1c1815;--red:#58180D;--red2:#8c2514;max-width:820px;margin:0 auto;padding:18px;background:#f7f3e8;color:var(--ink);font:9.5pt/1.35 'EB Garamond','Georgia',serif;box-shadow:0 2px 12px rgba(0,0,0,.25)}
-.paper h1,.paper h2,.paper h3{font-family:'Cinzel',serif;color:var(--red)}
-.cover{text-align:center;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--red)}
+</style>
+<style id="doc-css">
+/*
+ * Layout del documento: replica la tematizzazione del manuale di riferimento (Sol-Aeterna.html).
+ * Usato sia in anteprima sia in stampa/PDF e incorporato in "Esporta HTML".
+ */
+.paper{max-width:820px;margin:0 auto;padding:18px;font-family:'EB Garamond','Bookman Old Style','Georgia',serif;font-size:9pt;line-height:1.35;color:#1c1815;background-color:#f7f3e8;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.paper h1,.paper h2,.paper h3{font-family:'Cinzel',serif;color:#58180D}
+
+/* Copertina e indice (facoltativi) */
+.cover{text-align:center;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #58180D}
 .cover h1{margin:0;font-size:22pt;font-weight:900}
 .cover p{margin:4px 0 0;font-style:italic}
 .toc{margin:0 0 16px;padding:8px 14px;background:#fcfaf5;border:1px solid #d8ccb8;font-size:10pt}
 .toc h3{margin:0 0 4px;font-size:11pt}
-.level{margin-bottom:24px;padding:16px;background:#fcfaf5;border:1px solid #d8ccb8;border-radius:4px;break-after:page}
-.level:last-child{break-after:auto}
-.level-title{margin:0 0 12px;text-align:center;font-size:15pt;letter-spacing:1px}
 
-/* Luogo */
-.poi-card{margin-bottom:16px;padding:12px 14px;background:linear-gradient(135deg,#fdfbf7,#f4ede0);border:1px solid #c9baa2;border-left:4px solid var(--red);border-radius:2px;box-shadow:inset 0 0 30px rgba(194,181,155,.15)}
-.poi-title{margin:0 0 6px;padding-bottom:3px;font-size:11pt;letter-spacing:.5px;border-bottom:1px solid #d8ccb8}
-.env-image{width:100%;aspect-ratio:16/9;margin-bottom:8px;overflow:hidden;background:#dfd5c0;border:1px solid #7a2012;border-radius:2px}
-.env-image img,.entity-pic img{width:100%;height:100%;object-fit:cover;display:block}
-.read-aloud{margin:8px 0;padding:8px 12px;font-size:9pt;font-style:italic;text-align:justify;background:#f1ebd9;border:1px solid #e2dac9;border-left:3px solid var(--red2)}
-.read-aloud::first-letter{float:left;margin-right:4px;font:700 20pt/.8 'Cinzel',serif;color:var(--red)}
-.specs{margin-bottom:8px;padding:5px 8px;font-size:8pt;background:#eae1ce;border:1px solid #d4c8b0;border-radius:2px}
-.specs strong,.sub-title{font-family:'Cinzel',serif;color:var(--red)}
-.sub{margin-top:8px;padding-top:6px;font-size:9pt;text-align:justify;border-top:1px dashed #cbbea8}
-.sub-title{display:block;margin-bottom:4px;font-size:9.5pt;font-weight:700;letter-spacing:.5px}
+/* Livello / sezione */
+.level-wrapper{margin-bottom:30px;break-after:page;padding:20px;background-color:#fcfaf5;border:1px solid #d8ccb8;border-radius:4px}
+.level-wrapper:last-child{break-after:auto}
+.level-title{margin:0 0 14px;text-align:center;font-size:14pt;letter-spacing:1px}
 
-/* Aree annidate e intestazioni di gruppo */
-.group-title{margin:12px 0 4px;padding-top:6px;font:700 9.5pt 'Cinzel',serif;letter-spacing:.5px;color:var(--red);border-top:1px dashed #cbbea8}
-.settore-title{margin:10px 0 4px;font:700 9pt 'Cinzel',serif;letter-spacing:.5px;text-transform:uppercase;color:var(--red2)}
-.area-item{margin:6px 0;font-size:9pt;text-align:justify}
-.area-item strong{color:var(--ink)}
+/* Scheda del luogo */
+.poi-card{margin-bottom:16px;padding:12px 14px;background:linear-gradient(135deg,#fdfbf7 0%,#f4ede0 100%);border:1px solid #c9baa2;border-left:4px solid #58180D;border-radius:2px;box-shadow:0 2px 5px rgba(0,0,0,.05),inset 0 0 30px rgba(194,181,155,.15);break-inside:avoid}
+.poi-title{font-family:'Cinzel',serif;font-weight:700;color:#58180D;font-size:11pt;letter-spacing:.5px;margin-bottom:6px;border-bottom:1px solid #d8ccb8;padding-bottom:3px}
+.env-asset-box{width:100%;aspect-ratio:16/9;background-color:#dfd5c0;border:1px solid #7a2012;box-shadow:inset 0 0 10px rgba(0,0,0,.1);margin-bottom:8px;border-radius:2px;overflow:hidden}
+.env-asset-box img{width:100%;height:100%;object-fit:cover;display:block}
+.read-aloud{background:#f1ebd9;border-left:3px solid #8c2514;border-right:1px solid #e2dac9;border-top:1px solid #e2dac9;border-bottom:1px solid #e2dac9;font-style:italic;padding:8px 12px;margin:8px 0;font-size:8.5pt;color:#26211c;text-align:justify;border-radius:0 2px 2px 0}
+.read-aloud::first-letter{font-family:'Cinzel',serif;font-size:20pt;float:left;line-height:.8;margin-right:4px;color:#58180D;font-weight:700}
+.poi-specs{font-size:7.8pt;background-color:#eae1ce;border:1px solid #d4c8b0;padding:5px 8px;margin-bottom:8px;border-radius:2px;color:#2b251f}
+.poi-specs strong{color:#58180D;font-family:'Cinzel',serif;font-size:7.5pt;letter-spacing:.3px}
+.poi-sub-block{margin-top:8px;padding-top:6px;border-top:1px dashed #cbbea8;font-size:8.5pt;text-align:justify}
+.poi-sub-block-title{font-family:'Cinzel',serif;color:#58180D;font-weight:700;font-size:9pt;letter-spacing:.5px;margin-bottom:4px;display:block}
 
-/* Schede PNG / Oggetto / Fazione / Sessione */
-.entity{--c:var(--red);--c2:var(--red2);--b1:#f7f2e4;--b2:#ece3cf;--tag:#eee7d8;margin:8px 0;padding:8px 10px;overflow:hidden;font-size:8.5pt;background:linear-gradient(135deg,var(--b1),var(--b2));border:1px solid #cbbea8;border-left:3px solid var(--c);border-radius:2px;break-inside:avoid}
-.entity--oggetto{--c:#b8860b;--c2:#996515;--b1:#fbf7ee;--b2:#f1e7d0;--tag:#f3edd9}
-.entity--fazione{--c:#374151;--c2:#374151;--b1:#f4f4f2;--b2:#e6e5e0;--tag:#eae9e5}
-.entity--sessione{--c:#2f5d3a;--c2:#2f5d3a;--b1:#f3f6ee;--b2:#e3ebd9;--tag:#eaf0e2}
-.entity-name{margin-bottom:8px;padding:4px 8px;font:700 9.5pt 'Cinzel',serif;color:var(--c);background:var(--tag);border:1px solid #c9baa2;border-left:3px solid var(--c);border-radius:2px}
-.entity-pic{float:left;width:160px;aspect-ratio:4/3;margin:0 12px 4px 0;overflow:hidden;background:#ded4be;border:1px solid var(--c);border-radius:2px}
-.entity-field{margin-bottom:4px;text-align:justify}
-.entity-label{margin-right:4px;font:700 8pt 'Cinzel',serif;color:var(--c2)}
+/* Settori e sotto-aree */
+.settore-title{margin:10px 0 8px;color:#58180D;font-family:'Cinzel',serif;font-weight:700;font-size:8.8pt;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #cbbea8;padding-bottom:3px}
+.area-block{margin-bottom:12px}
+.area-text{font-size:8.5pt;text-align:justify;margin-bottom:6px}
+.card-field{text-align:justify;line-height:1.35;margin-bottom:4px}
 
-/* Mostro, tabella, nota */
-.stat{margin:8px 0;padding:8px 10px;font-size:8.5pt;background:#f4ede0;border:1px solid #cbbea8;border-top:3px solid var(--red);break-inside:avoid}
-.stat-name{font:700 11pt 'Cinzel',serif;color:var(--red)}
-.stat-type{margin-bottom:4px;font-style:italic;color:#4a3e35}
+/* Scheda PNG */
+.npc-inline-card{background:linear-gradient(135deg,#f7f2e4 0%,#ece3cf 100%);border:1px solid #cbbea8;border-left:3px solid #58180D;padding:8px 10px;margin:8px 0;font-size:8pt;border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,.04);overflow:hidden}
+.npc-name{font-family:'Cinzel',serif;font-weight:700;color:#58180D;font-size:9pt;background-color:#eee7d8;border:1px solid #c9baa2;border-left:3px solid #8c2514;padding:4px 8px;margin-bottom:8px;letter-spacing:.5px;border-radius:2px}
+.npc-portrait-box{float:left;width:160px;aspect-ratio:4/3;background-color:#ded4be;border:1px solid #8c2514;border-radius:2px;box-shadow:inset 0 0 6px rgba(0,0,0,.1);margin:0 12px 4px 0;overflow:hidden}
+.npc-portrait-box img{width:100%;height:100%;object-fit:cover;display:block}
+.npc-label{font-family:'Cinzel',serif;font-weight:700;color:#8c2514;font-size:7.8pt;letter-spacing:.4px;margin-right:4px}
+.session-card{border-left-color:#2f5d3a}
+
+/* Scheda oggetto */
+.item-inline-card{background:linear-gradient(135deg,#fbf7ee 0%,#f1e7d0 100%);border:1px solid #c8b99d;border-left:3px solid #b8860b;padding:8px 10px;margin:8px 0;font-size:8pt;border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,.04);overflow:hidden}
+.item-name{font-family:'Cinzel',serif;font-weight:700;color:#785200;font-size:9pt;background-color:#f3edd9;border:1px solid #dfd0b5;border-left:3px solid #b8860b;padding:4px 8px;margin-bottom:8px;letter-spacing:.5px;border-radius:2px}
+.item-portrait-box{float:left;width:160px;aspect-ratio:4/3;background-color:#ded4be;border:1px solid #b8860b;border-radius:2px;box-shadow:inset 0 0 6px rgba(0,0,0,.1);margin:0 12px 4px 0;overflow:hidden}
+.item-portrait-box img{width:100%;height:100%;object-fit:cover;display:block}
+.item-label{font-family:'Cinzel',serif;font-weight:700;color:#996515;font-size:7.8pt;letter-spacing:.4px;margin-right:4px}
+
+/* Scheda fazione */
+.faction-inline-card{background:linear-gradient(135deg,#f4f4f2 0%,#e6e5e0 100%);border:1px solid #bfbfbf;border-left:3px solid #374151;padding:8px 10px;margin:8px 0;font-size:8pt;border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,.04);overflow:hidden}
+.faction-name{font-family:'Cinzel',serif;font-weight:700;color:#1f2937;font-size:9pt;background-color:#eae9e5;border:1px solid #cfcfcf;border-left:3px solid #374151;padding:4px 8px;margin-bottom:8px;letter-spacing:.5px;border-radius:2px}
+.faction-portrait-box{float:left;width:160px;aspect-ratio:4/3;background-color:#ded4be;border:1px solid #4b5563;border-radius:2px;box-shadow:inset 0 0 6px rgba(0,0,0,.1);margin:0 12px 4px 0;overflow:hidden}
+.faction-portrait-box img{width:100%;height:100%;object-fit:cover;display:block}
+.faction-label{font-family:'Cinzel',serif;font-weight:700;color:#374151;font-size:7.8pt;letter-spacing:.4px;margin-right:4px}
+
+/* Statistiche D&D 2024 */
+.stat-block{background:#f4ede0;border:1px solid #cbbea8;padding:8px 10px;margin:6px 0;border-radius:2px;break-inside:avoid}
+.stat-name{font-family:'Cinzel',serif;font-weight:700;color:#58180D;font-size:9.5pt}
+.stat-type{font-style:italic;font-size:7.8pt;color:#4a3e35;margin-bottom:4px}
 .stat-line{margin:1px 0}
-.stat-section{margin-top:4px;font:700 8.5pt 'Cinzel',serif;color:var(--red2);border-bottom:1px dashed #cbbea8}
-.stat-table,.data-table{width:100%;border-collapse:collapse}
-.stat-table{margin:4px 0;text-align:center}
-.stat-table th,.data-table th{padding:2px 4px;font:700 8pt 'Cinzel',serif;color:var(--red);background:#dfd4be;text-align:left}
-.stat-table th{text-align:center}
-.table-title{margin-top:8px;break-after:avoid;font:700 9.5pt 'Cinzel',serif;color:var(--red)}
-.data-table{margin:2px 0 8px;font-size:8.5pt;break-inside:avoid}
-.data-table td{padding:2px 6px;border-bottom:1px solid #d8ccb8}
-.note{margin:8px 0;text-align:justify}
-.note h3{margin:0 0 4px;font-size:10.5pt}
+.stat-table{width:100%;text-align:center;font-size:7.8pt;margin:4px 0;border-collapse:collapse}
+.stat-table thead tr{background-color:#dfd4be;color:#58180D}
+.stat-section-title{font-family:'Cinzel',serif;font-weight:700;color:#8c2514;font-size:8pt;margin-top:4px;border-bottom:1px dashed #cbbea8}
 
-@page{size:A4;margin:14mm 12mm;@bottom-right{content:counter(page);font:8pt 'Cinzel',serif;color:#8c2514}}
+/* Tabelle e note */
+.table-title{margin-top:8px;break-after:avoid;font-family:'Cinzel',serif;font-weight:700;font-size:9pt;color:#58180D}
+.data-table{width:100%;margin:2px 0 8px;font-size:8pt;border-collapse:collapse;break-inside:avoid}
+.data-table th{padding:2px 6px;font-family:'Cinzel',serif;font-size:7.8pt;color:#58180D;background:#dfd4be;text-align:left}
+.data-table td{padding:2px 6px;border-bottom:1px solid #d8ccb8;vertical-align:top}
+.note{margin:8px 0;text-align:justify}
+.note h3{margin:0 0 4px;font-size:10pt}
+
+@page{size:A4;margin:14mm 12mm 14mm 12mm;@bottom-right{content:counter(page);font-family:'Cinzel',serif;font-size:8pt;color:#8c2514}}
 @media print{
   html,body{background:#f7f3e8!important}
   .paper{max-width:none;padding:0;box-shadow:none}
-  .level{padding:0;border:0}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 
@@ -126,9 +147,14 @@ textarea{min-height:70px;resize:vertical}
     <button id="btn-sample" type="button">Esempio</button>
     <button id="btn-import" type="button">Importa JSON</button>
     <button id="btn-export" type="button">Esporta JSON</button>
+    <button id="btn-import-html" type="button" title="Importa un manuale HTML nel formato di Sol-Aeterna.html">Importa HTML</button>
+    <button id="btn-images" type="button" title="Scegli la cartella delle immagini per collegare i percorsi locali del manuale importato">Collega immagini</button>
+    <button id="btn-export-html" type="button">Esporta HTML</button>
     <button id="btn-theme" type="button">Tema</button>
     <button id="btn-pdf" type="button" class="primary">Esporta PDF</button>
     <input id="file-import" type="file" accept="application/json" hidden>
+    <input id="file-import-html" type="file" accept=".html,.htm,text/html" hidden>
+    <input id="dir-images" type="file" webkitdirectory multiple hidden>
   </header>
   <main class="app">
     <section id="editor" class="editor" aria-label="Editor"></section>
@@ -211,25 +237,38 @@ const BLOCK_TYPES = {
   luogo: {
     label: 'Luogo',
     fields: [
-      t('titolo', 'Titolo del luogo'), i('img', 'Immagine ambientale (16:9)'),
+      t('titolo', 'Titolo del luogo (es. Il Bastione dei Magli (Fornice Daziario & Varco Mediano))'),
+      t('num', 'Numerazione: vuoto = automatica, "-" = nessun numero, oppure un testo (es. 3.B)'),
+      i('img', 'Immagine ambientale (16:9)'),
       a('lettura', 'Testo da leggere ad alta voce'),
       t('orari', 'Orari'), t('permessi', 'Permessi'), t('sorv', 'Sorveglianza & Rischi'),
       t('pericoli', 'Pericoli Ambientali (facoltativo)'),
-      a('vie', 'Vie d’accesso (una per riga)'),
-      a('aree', 'Aree & Settori in elenco semplice (una per riga; in alternativa usa i blocchi Area)'),
+      a('specs', 'Altre specifiche (facoltative, una per riga: Etichetta: valore — es. Altitudine: 0–50 m)'),
+      t('titVie', 'Titolo dell’elenco vie (vuoto = Vie d’Accesso & Snodi Stradali)'),
+      a('vie', 'Vie d’accesso (una per riga, es. **Nome (Sottotitolo):** descrizione)'),
+      t('titFazioni', 'Titolo del gruppo fazioni (vuoto = Equilibri di Potere & Fazioni Locali)'),
+      t('titAree', 'Titolo del gruppo aree (vuoto = Aree, Settori & PNG Residenti)'),
+      a('aree', 'Aree in elenco semplice (facoltativo; meglio usare i blocchi Area)'),
+    ],
+  },
+  elenco: {
+    label: 'Elenco / Architettura',
+    fields: [
+      t('titolo', 'Titolo (es. Architettura Industriale, Altoforno & Magazzini dei Metalli)'),
+      a('righe', 'Voci, una per riga (es. **L’Altoforno del Fuoco Dorato:** descrizione)'),
     ],
   },
   area: {
     label: 'Area / Settore',
     fields: [
-      t('settore', 'Settore (facoltativo: apre un nuovo raggruppamento, es. SETTORE I: IL QUARTIERE SOLARE)'),
+      t('settore', 'Settore (facoltativo: apre un nuovo raggruppamento, es. Settore I: Il Quartiere Solare)'),
       t('titolo', 'Nome dell’area'), a('descr', 'Descrizione ambientale'),
     ],
   },
   png: {
     label: 'PNG',
     fields: [
-      t('nome', 'Nome'), t('razza', 'Razza'), t('ruolo', 'Ruolo'), i('img', 'Ritratto'),
+      t('nome', 'Nome'), t('razza', 'Stirpe'), t('ruolo', 'Ruolo & Occupazione'), i('img', 'Ritratto (4:3)'),
       a('aspetto', 'Aspetto Fisico & Vestiario'), a('segni', 'Segni Particolari, Prossemica & Voce'),
       a('psi', 'Psicologia & Reazioni al Tavolo'), a('arg', 'Argomenti Preferiti'),
       a('segr', 'Segreti, Tariffe & Nozioni Rivelabili'),
@@ -238,7 +277,7 @@ const BLOCK_TYPES = {
   oggetto: {
     label: 'Oggetto',
     fields: [
-      t('nome', 'Nome'), t('sub', 'Sottotitolo'), i('img', 'Immagine'),
+      t('nome', 'Nome'), t('sub', 'Categoria / Funzione'), i('img', 'Illustrazione (4:3)'),
       a('natura', 'Natura & Manifattura'), a('prop', 'Proprietà & Meccanica d’Uso'),
       a('coll', 'Collocazione & Come Ottenerlo'),
     ],
@@ -246,9 +285,10 @@ const BLOCK_TYPES = {
   fazione: {
     label: 'Fazione',
     fields: [
-      t('nome', 'Nome'), t('sub', 'Sottotitolo'), i('img', 'Emblema'),
+      t('nome', 'Nome'), t('sub', 'Ruolo & Funzione'), i('img', 'Emblema (4:3)'),
       a('emb', 'Emblema & Simbologia'), a('ruolo', 'Ruolo, Influenza & Struttura'),
       a('segni', 'Segni di Riconoscimento & Gergo'), a('rapp', 'Rapporti & Rivalità'),
+      t('lab', 'Etichette personalizzate (facoltative, 4 voci separate da | nello stesso ordine dei campi)'),
     ],
   },
   mostro: {
@@ -257,8 +297,10 @@ const BLOCK_TYPES = {
       t('nome', 'Nome'), t('tipo', 'Tipo (es. Umanoide Medio, Neutrale)'),
       t('ca', 'Classe Armatura'), t('pf', 'Punti Ferita'), t('vel', 'Velocità'),
       t('car', 'FOR, DES, COS, INT, SAG, CAR (es. 13,12,14,8,10,9)'),
-      t('abil', 'Abilità'), t('sensi', 'Sensi'), t('ling', 'Linguaggi'), t('sfida', 'Sfida'),
-      a('tratti', 'Tratti Speciali'), a('azioni', 'Azioni'),
+      t('abil', 'Abilità'), t('sensi', 'Sensi'), t('ling', 'Linguaggi'),
+      t('sfida', 'Sfida (es. 1/2 (100 PE) | Bonus Competenza: +2)'),
+      a('tratti', 'Tratti Speciali (uno per riga: **Nome:** descrizione)'),
+      a('azioni', 'Azioni (una per riga: **Nome:** descrizione)'),
     ],
   },
   tabella: {
@@ -280,7 +322,7 @@ const BLOCK_TYPES = {
 };
 
 /** Blocchi che si annidano dentro l'ultimo "Luogo" aperto. */
-const NESTED = new Set(['area', 'png', 'oggetto', 'fazione', 'mostro', 'tabella']);
+const NESTED = new Set(['elenco', 'area', 'png', 'oggetto', 'fazione', 'mostro', 'tabella']);
 
 const titleOf = (block) => block.data.titolo || block.data.nome || '(senza titolo)';
 
@@ -400,7 +442,16 @@ class Store {
   subscribe(fn) { this.listeners.add(fn); return () => this.listeners.delete(fn); }
 
   #emit(structural) {
-    try { localStorage.setItem(this.key, JSON.stringify(this.doc)); } catch { /* storage non disponibile */ }
+    try {
+      localStorage.setItem(this.key, JSON.stringify(this.doc));
+    } catch {
+      // spazio del browser esaurito (di solito per troppe immagini): avvisa una sola volta
+      if (!this.warned) {
+        this.warned = true;
+        alert('Il browser non riesce più a salvare il documento (spazio esaurito, probabilmente per le immagini). '
+          + 'Usa "Esporta JSON" per non perdere il lavoro.');
+      }
+    }
     this.listeners.forEach((fn) => fn(this.doc, structural));
   }
 
@@ -449,80 +500,388 @@ class Store {
   toJSON() { return JSON.stringify(this.doc, null, 2); }
 }
 
+// --- js/io/htmlImport.js ---
+/**
+ * Importa un manuale HTML nel formato di riferimento (es. Sol-Aeterna.html) e lo converte nel documento di Lorebinder.
+ * Riconosce: level-wrapper (sezioni), poi-card (luoghi), poi-sub-block (vie, elenchi, fazioni, aree),
+ * npc/item/faction-inline-card (schede) e stat-block (statistiche).
+ */
+
+const ROMAN = /^[IVXLCDM]+$/;
+
+/** HTML -> testo con **grassetto**, *corsivo* e a capo. */
+function toMarkup(node) {
+  let out = '';
+  node.childNodes.forEach((n) => {
+    if (n.nodeType === Node.TEXT_NODE) { out += n.textContent.replace(/\s+/g, ' '); return; }
+    if (n.nodeType !== Node.ELEMENT_NODE) return;
+    const tag = n.tagName.toLowerCase();
+    if (tag === 'br') { out += '\n'; return; }
+    const inner = toMarkup(n);
+    if (tag === 'strong' || tag === 'b') out += inner.trim() ? `**${inner.trim()}** ` : '';
+    else if (tag === 'em' || tag === 'i') out += inner.trim() ? `*${inner.trim()}* ` : '';
+    else out += inner;
+  });
+  return out;
+}
+
+const clean = (s) => s
+  .replace(/[ \t]+/g, ' ')
+  .replace(/ ?\n ?/g, '\n')
+  .replace(/\*\* ([:.,;)])/g, '**$1')
+  .replace(/\* ([:.,;)])/g, '*$1')
+  .replace(/\n{2,}/g, '\n')
+  .trim();
+
+const md = (el) => (el ? clean(toMarkup(el)) : '');
+const text = (el) => (el ? el.textContent.replace(/\s+/g, ' ').trim() : '');
+
+/** "Nome (Sottotitolo)" -> [nome, sottotitolo] (le parentesi interne restano nel nome). */
+function splitHeader(h) {
+  const m = h.match(/^(.*?)\s*\(([^()]*(?:\([^()]*\)[^()]*)*)\)\s*$/);
+  return m ? [m[1].trim(), m[2].trim()] : [h.trim(), ''];
+}
+
+/**
+ * Immagine di una scheda: gli URL web e i data URI si usano così come sono; i percorsi locali
+ * (es. C:\\Users\\...\\Kip Scurry.jpg) vengono conservati in "imgPath" e collegati poi con "Collega immagini".
+ */
+function imgFields(img) {
+  const src = img?.getAttribute('src') || '';
+  if (!src) return {};
+  return /^(data:|https?:)/i.test(src) ? { img: src } : { img: '', imgPath: src };
+}
+
+/** Campi di una scheda: etichetta (testo del primo <strong>) -> valore. */
+function cardFields(card) {
+  const out = [];
+  card.querySelectorAll(':scope > .card-field').forEach((f) => {
+    const label = f.querySelector('strong');
+    const lab = label ? text(label).replace(/:$/, '') : '';
+    const clone = f.cloneNode(true);
+    clone.querySelector('strong')?.remove();
+    out.push([lab, md(clone)]);
+  });
+  return out;
+}
+
+const pick = (fields, ...keys) => fields.find(([l]) => keys.some((k) => l.toLowerCase().startsWith(k.toLowerCase())))?.[1] ?? '';
+
+function npc(card) {
+  const [nome, sub] = splitHeader(text(card.querySelector('.npc-name')));
+  const [razza, ...ruolo] = sub.split(' — ');
+  const f = cardFields(card);
+  return { type: 'png', data: {
+    nome, razza: razza ?? '', ruolo: ruolo.join(' — '), ...imgFields(card.querySelector('img')),
+    aspetto: pick(f, 'Aspetto'), segni: pick(f, 'Segni'), psi: pick(f, 'Psicologia'),
+    arg: pick(f, 'Argomenti'), segr: pick(f, 'Segreti'),
+  } };
+}
+
+function item(card) {
+  const [nome, sub] = splitHeader(text(card.querySelector('.item-name')));
+  const f = cardFields(card);
+  // eventuali elenchi puntati dopo i campi (es. modalità per ottenerlo)
+  const extra = [...card.children].filter((c) => !c.classList.contains('card-field') && !c.classList.contains('item-name')
+    && !c.classList.contains('item-portrait-box')).map(md).filter(Boolean).join('\n');
+  const coll = [pick(f, 'Collocazione'), extra].filter(Boolean).join('\n');
+  return { type: 'oggetto', data: {
+    nome, sub, ...imgFields(card.querySelector('img')),
+    natura: pick(f, 'Natura'), prop: pick(f, 'Propriet'), coll,
+  } };
+}
+
+function faction(card) {
+  const [nome, sub] = splitHeader(text(card.querySelector('.faction-name')));
+  const f = cardFields(card);
+  const slot = (l) => {
+    const s = l.toLowerCase();
+    if (s.startsWith('emblema') || s.startsWith('segnale')) return 0;
+    if (s.startsWith('ruolo') || s.startsWith('attivit')) return 1;
+    if (s.startsWith('segni')) return 2;
+    return 3;
+  };
+  const vals = ['', '', '', ''];
+  const labs = ['', '', '', ''];
+  f.forEach(([l, v]) => { const k = slot(l); vals[k] = v; labs[k] = l; });
+  return { type: 'fazione', data: {
+    nome, sub, ...imgFields(card.querySelector('img')),
+    emb: vals[0], ruolo: vals[1], segni: vals[2], rapp: vals[3], lab: labs.join(' | '),
+  } };
+}
+
+function stat(block) {
+  const d = { nome: text(block.querySelector('.stat-name')), tipo: text(block.querySelector('.stat-type')) };
+  const map = { 'Classe Armatura': 'ca', 'Punti Ferita': 'pf', 'Velocità': 'vel', 'Abilità': 'abil', 'Sensi': 'sensi', 'Linguaggi': 'ling', 'Sfida': 'sfida' };
+  let section = '';
+  const tratti = [];
+  const azioni = [];
+  [...block.children].forEach((c) => {
+    if (c.classList.contains('stat-section-title')) { section = text(c).toLowerCase(); return; }
+    if (c.tagName === 'TABLE') {
+      d.car = [...c.querySelectorAll('tbody td')].map((td) => parseInt(td.textContent, 10)).join(',');
+      return;
+    }
+    if (!c.classList.contains('stat-line')) return;
+    const label = text(c.querySelector('strong')).replace(/:$/, '');
+    if (!section && map[label]) {
+      const clone = c.cloneNode(true);
+      clone.querySelector('strong')?.remove();
+      d[map[label]] = md(clone);
+      return;
+    }
+    (section.startsWith('azion') ? azioni : tratti).push(md(c));
+  });
+  d.tratti = tratti.join('\n');
+  d.azioni = azioni.join('\n');
+  return { type: 'mostro', data: d };
+}
+
+/** Contenuto di un sotto-blocco: bullet testuali e schede annidate, nell'ordine in cui compaiono. */
+function walkSub(sub, kind, blocks) {
+  const settorePending = { v: '' };
+
+  const handleCard = (el) => {
+    if (el.classList.contains('npc-inline-card')) blocks.push(npc(el));
+    else if (el.classList.contains('item-inline-card')) blocks.push(item(el));
+    else if (el.classList.contains('faction-inline-card')) blocks.push(faction(el));
+    else if (el.classList.contains('stat-block')) blocks.push(stat(el));
+    else return false;
+    return true;
+  };
+
+  // testo libero (bullet separati da <br>) fuori dalle schede
+  const lines = [];
+  const walker = (el) => {
+    [...el.childNodes].forEach((n) => {
+      if (n.nodeType === Node.ELEMENT_NODE) {
+        if (n.classList.contains('poi-sub-block-title')) return;
+        if (handleCard(n)) return;
+        const style = (n.getAttribute('style') || '').toLowerCase();
+        if (style.includes('uppercase')) { settorePending.v = text(n); return; }
+        if (kind === 'area' && n.tagName === 'DIV' && style.includes('margin-bottom: 12px')) {
+          // contenitore di sotto-area: primo div = descrizione, poi le schede
+          const [first, ...rest] = [...n.children];
+          const t = md(first).replace(/^•\s*/, '');
+          const m = t.match(/^\*\*(.+?):\*\*\s*([\s\S]*)$/);
+          const area = { type: 'area', data: { titolo: m ? m[1] : t.slice(0, 60), descr: m ? m[2] : t } };
+          if (settorePending.v) { area.data.settore = settorePending.v; settorePending.v = ''; }
+          blocks.push(area);
+          rest.forEach((r) => handleCard(r) || walker(r));
+          return;
+        }
+        if (n.tagName === 'DIV') { walker(n); return; }
+      }
+      lines.push(n.nodeType === Node.TEXT_NODE ? n.textContent : n.outerHTML);
+    });
+  };
+  walker(sub);
+  const tmp = document.createElement('div');
+  tmp.innerHTML = lines.join('');
+  return md(tmp).split('\n').map((l) => l.replace(/^•\s*/, '').trim()).filter(Boolean).join('\n');
+}
+
+function poi(card) {
+  const titleRaw = text(card.querySelector('.poi-title'));
+  const m = titleRaw.match(/^(\d+[A-Za-z.]*)\.\s+(.*)$/);
+  const luogo = { type: 'luogo', data: {
+    titolo: m ? m[2] : titleRaw, num: m ? '' : '-',
+    ...imgFields(card.querySelector('.env-asset-box img')),
+    lettura: md(card.querySelector('.read-aloud')),
+  } };
+  // specifiche: <strong>Etichetta:</strong> valore separati da |
+  const specsEl = card.querySelector('.poi-specs');
+  if (specsEl) {
+    const known = { 'Orari': 'orari', 'Permessi': 'permessi', 'Sorveglianza & Rischi': 'sorv', 'Pericoli Ambientali': 'pericoli' };
+    const extra = [];
+    md(specsEl).split(/\s*\|\s*(?=\*\*)/).forEach((part) => {
+      const mm = part.match(/^\*\*(.+?):\*\*\s*([\s\S]*)$/);
+      if (!mm) return;
+      const key = known[mm[1]];
+      if (key) luogo.data[key] = mm[2].trim(); else extra.push(`${mm[1]}: ${mm[2].trim()}`);
+    });
+    luogo.data.specs = extra.join('\n');
+  }
+  const blocks = [luogo];
+  card.querySelectorAll(':scope > .poi-sub-block').forEach((sub, idx) => {
+    const title = text(sub.querySelector('.poi-sub-block-title')).replace(/:$/, '');
+    const hasFactions = sub.querySelector(':scope > .faction-inline-card');
+    const hasAreas = /aree|botteghe|settori/i.test(title) || sub.querySelector(':scope > div[style*="margin-bottom: 12px"]');
+    if (hasFactions) {
+      luogo.data.titFazioni = title;
+      walkSub(sub, 'fazione', blocks);
+    } else if (hasAreas) {
+      luogo.data.titAree = title;
+      walkSub(sub, 'area', blocks);
+    } else if (idx === 0 && /^vie d/i.test(title)) {
+      luogo.data.titVie = title;
+      const nested = [];
+      luogo.data.vie = walkSub(sub, 'vie', nested);
+      blocks.push(...nested);
+    } else {
+      const nested = [];
+      const righe = walkSub(sub, 'elenco', nested);
+      blocks.push({ type: 'elenco', data: { titolo: title, righe } }, ...nested);
+    }
+  });
+  return blocks;
+}
+
+function sectionTitle(wrapper, index) {
+  let n = wrapper.previousSibling;
+  while (n && n.nodeType !== Node.ELEMENT_NODE) {
+    if (n.nodeType === Node.COMMENT_NODE) {
+      const t = n.textContent.replace(/=+/g, '').trim();
+      if (t) {
+        return t.split(/\s+/).map((w) => (ROMAN.test(w) ? w : w.charAt(0) + w.slice(1).toLowerCase())).join(' ');
+      }
+    }
+    n = n.previousSibling;
+  }
+  return `Sezione ${index + 1}`;
+}
+
+function importHtml(source) {
+  const dom = new DOMParser().parseFromString(source, 'text/html');
+  const wrappers = [...dom.querySelectorAll('.level-wrapper')];
+  const roots = wrappers.length ? wrappers : [dom.body];
+  const sections = roots.map((w, i) => ({
+    title: wrappers.length ? sectionTitle(w, i) : 'Documento importato',
+    blocks: [...w.querySelectorAll('.poi-card')].flatMap(poi),
+  }));
+  if (!sections.some((s) => s.blocks.length)) throw new Error('nessuna scheda "poi-card" trovata');
+  const title = text(dom.querySelector('title'));
+  return { title, subtitle: '', toc: false, sections, sourceTitle: title };
+}
+
+/** Collega le immagini indicate con percorsi locali ai file di una cartella scelta dall'utente. */
+async function linkImages(doc, files, resize) {
+  const byPath = new Map();
+  [...files].forEach((f) => byPath.set((f.webkitRelativePath || f.name).replace(/\\/g, '/').toLowerCase(), f));
+  const find = (src) => {
+    const p = src.replace(/\\/g, '/').toLowerCase();
+    let best = null;
+    let bestLen = 0;
+    byPath.forEach((f, rel) => {
+      // confronto sul suffisso di percorso più lungo in comune
+      const a = p.split('/').reverse();
+      const b = rel.split('/').reverse();
+      let k = 0;
+      while (k < a.length && k < b.length && a[k] === b[k]) k++;
+      if (k > bestLen) { bestLen = k; best = f; }
+    });
+    return best;
+  };
+  let linked = 0;
+  for (const s of doc.sections) {
+    for (const b of s.blocks) {
+      const src = b.data?.imgPath;
+      if (!src || b.data.img) continue;
+      const f = find(src);
+      if (f) { b.data.img = await resize(f, b.type === 'luogo' ? 1000 : 480, 0.78); linked++; }
+    }
+  }
+  return linked;
+}
+
 // --- js/render/renderers.js ---
 
 
-const field = (label, v) =>
-  v ? `<div class="entity-field"><strong class="entity-label">${label}:</strong> ${inline(v)}</div>` : '';
-const pic = (cls, img) => (img ? `<div class="${cls}"><img src="${esc(img)}" alt=""></div>` : '');
-const sub = (title, v) => `<div class="sub"><span class="sub-title">${title}</span>${bullets(v)}</div>`;
-const statLine = (label, v) => (v ? `<div class="stat-line"><strong>${label}:</strong> ${inline(v)}</div>` : '');
-const entity = (mod, name, img, body) =>
-  `<div class="entity entity--${mod}"><div class="entity-name">${name}</div>${pic('entity-pic', img)}${body}</div>`;
-const withSub = (name, s) => esc(name) + (s ? ` (${esc(s)})` : '');
-
-/**
+/*
  * Un renderer per tipo di blocco: (data, ctx) => stringa HTML.
- * Il renderer "luogo" restituisce una scheda APERTA: la chiude DocumentRenderer.
+ * Markup e classi replicano 1:1 il manuale di riferimento (Sol-Aeterna.html):
+ * poi-card, poi-sub-block, npc/item/faction-inline-card, stat-block.
+ * L'apertura e la chiusura di schede e sotto-blocchi è gestita da DocumentRenderer.
  */
+
+const field = (cls, label, v) =>
+  v ? `<div class="card-field"><strong class="${cls}">${label}:</strong> ${inline(v)}</div>` : '';
+const pic = (cls, img, alt) => (img ? `<div class="${cls}"><img src="${esc(img)}" alt="${esc(alt)}"></div>` : '');
+const withSub = (name, s) => esc(name) + (s ? ` (${esc(s)})` : '');
+const statLine = (label, v) => (v ? `<div class="stat-line"><strong>${label}:</strong> ${inline(v)}</div>` : '');
+const statLines = (v) => lines(v).map((l) => `<div class="stat-line">${inline(l)}</div>`).join('');
+
+/** Apertura di un sotto-blocco con titolo (Vie d'accesso, Fazioni, Aree, Architettura...). */
+const subBlock = (title, body = '') =>
+  `<div class="poi-sub-block"><span class="poi-sub-block-title">${esc(title)}:</span>${body}`;
+
+/** "Etichetta: valore" -> <strong>Etichetta:</strong> valore */
+const specItem = (line) => {
+  const m = line.match(/^\s*([^:]{1,60}):\s*(.*)$/);
+  return m ? `<strong>${esc(m[1])}:</strong> ${inline(m[2])}` : inline(line);
+};
+
 const renderers = {
-  luogo(d, { index }) {
+  /** Restituisce l'intestazione della scheda (APERTA): titolo, immagine, lettura e specifiche. */
+  luogo(d, { number }) {
     const specs = [['Orari', d.orari], ['Permessi', d.permessi], ['Sorveglianza &amp; Rischi', d.sorv],
       ['Pericoli Ambientali', d.pericoli]]
       .filter(([, v]) => v)
       .map(([l, v]) => `<strong>${l}:</strong> ${inline(v)}`)
+      .concat(lines(d.specs).map(specItem))
       .join(' &nbsp;|&nbsp; ');
-    return `<section class="poi-card"><h3 class="poi-title">${index}. ${esc(d.titolo)}</h3>`
-      + pic('env-image', d.img)
+    return `<div class="poi-card"><div class="poi-title">${number ? `${esc(number)}. ` : ''}${esc(d.titolo)}</div>`
+      + pic('env-asset-box', d.img, d.titolo)
       + (d.lettura ? `<div class="read-aloud">${inline(d.lettura)}</div>` : '')
-      + (specs ? `<div class="specs">${specs}</div>` : '')
-      + (d.vie ? sub('Vie d’Accesso &amp; Snodi', d.vie) : '')
-      + (d.aree ? sub('Aree, Settori &amp; PNG Residenti', d.aree) : '');
+      + (specs ? `<div class="poi-specs">${specs}</div>` : '');
   },
 
+  /** Testo della sotto-area (il contenitore è aperto/chiuso da DocumentRenderer). */
   area(d) {
     return (d.settore ? `<div class="settore-title">${esc(d.settore)}</div>` : '')
-      + `<div class="area-item">&bull; <strong>${esc(d.titolo)}:</strong> ${inline(d.descr)}</div>`;
+      + `<div class="area-block"><div class="area-text">&bull; <strong>${esc(d.titolo)}:</strong> ${inline(d.descr)}</div>`;
   },
 
   png(d) {
     const who = [d.razza, d.ruolo].filter(Boolean).map(esc).join(' — ');
-    return entity('png', esc(d.nome) + (who ? ` (${who})` : ''), d.img,
-      field('Aspetto Fisico &amp; Vestiario', d.aspetto)
-      + field('Segni Particolari, Prossemica &amp; Voce', d.segni)
-      + field('Psicologia &amp; Reazioni al Tavolo', d.psi)
-      + field('Argomenti Preferiti', d.arg)
-      + field('Segreti, Tariffe &amp; Nozioni Rivelabili', d.segr));
+    return '<div class="npc-inline-card">'
+      + `<div class="npc-name">${esc(d.nome)}${who ? ` (${who})` : ''}</div>`
+      + pic('npc-portrait-box', d.img, `Ritratto di ${d.nome}`)
+      + field('npc-label', 'Aspetto Fisico &amp; Vestiario', d.aspetto)
+      + field('npc-label', 'Segni Particolari, Prossemica &amp; Voce', d.segni)
+      + field('npc-label', 'Psicologia &amp; Reazioni al Tavolo', d.psi)
+      + field('npc-label', 'Argomenti Preferiti', d.arg)
+      + field('npc-label', 'Segreti, Tariffe &amp; Nozioni Rivelabili', d.segr)
+      + '</div>';
   },
 
   oggetto(d) {
-    return entity('oggetto', withSub(d.nome, d.sub), d.img,
-      field('Natura &amp; Manifattura', d.natura)
-      + field('Proprietà &amp; Meccanica d’Uso', d.prop)
-      + field('Collocazione &amp; Come Ottenerlo', d.coll));
+    return '<div class="item-inline-card">'
+      + `<div class="item-name">${withSub(d.nome, d.sub)}</div>`
+      + pic('item-portrait-box', d.img, d.nome)
+      + field('item-label', 'Natura &amp; Manifattura', d.natura)
+      + field('item-label', 'Proprietà &amp; Meccanica d’Uso', d.prop)
+      + field('item-label', 'Collocazione &amp; Come Ottenerlo', d.coll)
+      + '</div>';
   },
 
   fazione(d) {
-    return entity('fazione', withSub(d.nome, d.sub), d.img,
-      field('Emblema &amp; Simbologia', d.emb)
-      + field('Ruolo, Influenza &amp; Struttura', d.ruolo)
-      + field('Segni di Riconoscimento &amp; Gergo', d.segni)
-      + field('Rapporti &amp; Rivalità', d.rapp));
+    const def = ['Emblema & Simbologia Cifrata', 'Ruolo, Influenza & Struttura', 'Segni di Riconoscimento & Gergo', 'Rapporti & Rivalità'];
+    const custom = String(d.lab ?? '').split('|').map((s) => s.trim());
+    const lab = def.map((l, k) => esc(custom[k] || l));
+    return '<div class="faction-inline-card">'
+      + `<div class="faction-name">${withSub(d.nome, d.sub)}</div>`
+      + pic('faction-portrait-box', d.img, `Emblema di ${d.nome}`)
+      + field('faction-label', lab[0], d.emb)
+      + field('faction-label', lab[1], d.ruolo)
+      + field('faction-label', lab[2], d.segni)
+      + field('faction-label', lab[3], d.rapp)
+      + '</div>';
   },
 
   mostro(d) {
     const names = ['FOR', 'DES', 'COS', 'INT', 'SAG', 'CAR'];
     const v = String(d.car ?? '').split(/[,\s/]+/).filter(Boolean);
     const table = v.length
-      ? `<table class="stat-table"><tr>${names.map((n) => `<th>${n}</th>`).join('')}</tr>`
-        + `<tr>${names.map((_, i) => `<td>${modifier(v[i])}</td>`).join('')}</tr></table>`
+      ? `<table class="stat-table"><thead><tr>${names.map((n) => `<th>${n}</th>`).join('')}</tr></thead>`
+        + `<tbody><tr>${names.map((_, k) => `<td>${modifier(v[k])}</td>`).join('')}</tr></tbody></table>`
       : '';
-    return `<div class="stat"><div class="stat-name">${esc(d.nome)}</div><div class="stat-type">${esc(d.tipo)}</div>`
+    return `<div class="stat-block"><div class="stat-name">${esc(d.nome)}</div><div class="stat-type">${esc(d.tipo)}</div>`
       + statLine('Classe Armatura', d.ca) + statLine('Punti Ferita', d.pf) + statLine('Velocità', d.vel)
       + table
       + statLine('Abilità', d.abil) + statLine('Sensi', d.sensi) + statLine('Linguaggi', d.ling) + statLine('Sfida', d.sfida)
-      + (d.tratti ? `<div class="stat-section">Tratti Speciali</div><div class="stat-line">${inline(d.tratti)}</div>` : '')
-      + (d.azioni ? `<div class="stat-section">Azioni</div><div class="stat-line">${inline(d.azioni)}</div>` : '')
+      + (d.tratti ? `<div class="stat-section-title">Tratti Speciali</div>${statLines(d.tratti)}` : '')
+      + (d.azioni ? `<div class="stat-section-title">Azioni</div>${statLines(d.azioni)}` : '')
       + '</div>';
   },
 
@@ -537,13 +896,18 @@ const renderers = {
 
   sessione(d) {
     const name = `Sessione ${esc(d.num)}` + (d.titolo ? ` — ${esc(d.titolo)}` : '') + (d.data ? ` (${esc(d.data)})` : '');
-    return entity('sessione', name, '',
-      field('Riassunto', d.riassunto) + field('Eventi Chiave', d.eventi) + field('PNG Incontrati', d.png)
-      + field('Bottino &amp; Ricompense', d.bottino) + field('Ganci per la Prossima Sessione', d.ganci));
+    return `<div class="npc-inline-card session-card"><div class="npc-name">${name}</div>`
+      + field('npc-label', 'Riassunto', d.riassunto) + field('npc-label', 'Eventi Chiave', d.eventi)
+      + field('npc-label', 'PNG Incontrati', d.png) + field('npc-label', 'Bottino &amp; Ricompense', d.bottino)
+      + field('npc-label', 'Ganci per la Prossima Sessione', d.ganci) + '</div>';
   },
 
   nota(d) {
     return `<div class="note">${d.titolo ? `<h3>${esc(d.titolo)}</h3>` : ''}${inline(d.testo)}</div>`;
+  },
+
+  elenco(d) {
+    return bullets(d.righe);
   },
 };
 
@@ -552,15 +916,22 @@ const renderers = {
 
 
 
-const GROUP_HEADS = {
-  fazione: 'Equilibri di Potere &amp; Fazioni',
-  area: 'Aree, Settori &amp; PNG Residenti',
+const DEFAULT_TITLES = {
+  vie: 'Vie d’Accesso & Snodi Stradali',
+  fazione: 'Equilibri di Potere & Fazioni Locali',
+  area: 'Aree, Settori & PNG Residenti',
 };
 
-/** Trasforma il documento (JSON) nell'HTML impaginato come i manuali di riferimento. */
+/**
+ * Trasforma il documento (JSON) nell'HTML impaginato come il manuale di riferimento (Sol-Aeterna.html):
+ * ogni sezione è un "level-wrapper", ogni Luogo una "poi-card" che contiene sotto-blocchi
+ * (vie d'accesso, elenchi, fazioni, aree) in cui si annidano PNG, oggetti e statistiche.
+ */
 class DocumentRenderer {
   render(doc) {
-    let html = `<header class="cover"><h1>${esc(doc.title)}</h1>${doc.subtitle ? `<p>${esc(doc.subtitle)}</p>` : ''}</header>`;
+    let html = doc.title || doc.subtitle
+      ? `<header class="cover"><h1>${esc(doc.title)}</h1>${doc.subtitle ? `<p>${esc(doc.subtitle)}</p>` : ''}</header>`
+      : '';
     if (doc.toc && doc.sections.length) html += this.#toc(doc.sections);
     return html + doc.sections.map((s) => this.#section(s)).join('');
   }
@@ -571,22 +942,55 @@ class DocumentRenderer {
   }
 
   #section(section) {
-    let html = `<section class="level"><h2 class="level-title">${esc(section.title)}</h2>`;
-    let open = false;
-    let index = 0;
-    let heads = new Set();
-    const close = () => { if (open) { html += '</section>'; open = false; } };
+    let html = `<div class="level-wrapper">${section.title ? `<h2 class="level-title">${esc(section.title)}</h2>` : ''}`;
+    let card = null;      // dati del Luogo aperto
+    let sub = null;       // tipo del sotto-blocco aperto: 'vie' | 'elenco' | 'fazione' | 'area' | 'aree'
+    let area = false;     // contenitore della sotto-area aperto
+    let counter = 0;
+
+    const closeArea = () => { if (area) { html += '</div>'; area = false; } };
+    const closeSub = () => { closeArea(); if (sub) { html += '</div>'; sub = null; } };
+    const closeCard = () => { closeSub(); if (card) { html += '</div>'; card = null; } };
+    const openSub = (kind, title, body) => { closeSub(); html += subBlock(title, body); sub = kind; };
 
     for (const block of section.blocks) {
-      if (block.type === 'luogo') { close(); open = true; index++; heads = new Set(); }
-      else if (!NESTED.has(block.type)) close();
-      // Intestazioni di gruppo (una volta per luogo), come nei manuali di riferimento
-      const head = open && GROUP_HEADS[block.type];
-      if (head && !heads.has(block.type)) { heads.add(block.type); html += `<div class="group-title">${head}</div>`; }
-      html += renderers[block.type]?.(block.data, { index }) ?? '';
+      const d = block.data ?? {};
+      const type = block.type;
+
+      if (type === 'luogo') {
+        closeCard();
+        const n = String(d.num ?? '').trim();
+        const number = n === '-' ? '' : n || String(++counter);
+        html += renderers.luogo(d, { number });
+        card = d;
+        if (d.vie) openSub('vie', d.titVie || DEFAULT_TITLES.vie, bullets(d.vie));
+        if (d.aree) openSub('aree', d.titAree || DEFAULT_TITLES.area, bullets(d.aree));
+        continue;
+      }
+
+      if (!NESTED.has(type)) { closeCard(); html += renderers[type]?.(d) ?? ''; continue; }
+
+      if (card) {
+        if (type === 'elenco') { openSub('elenco', d.titolo || 'Elenco', renderers.elenco(d)); continue; }
+        if (type === 'fazione' && sub !== 'fazione') openSub('fazione', card.titFazioni || DEFAULT_TITLES.fazione, '');
+        if (type === 'area') {
+          if (sub !== 'area') openSub('area', card.titAree || DEFAULT_TITLES.area, '');
+          closeArea();
+          html += renderers.area(d);
+          area = true;
+          continue;
+        }
+      } else if (type === 'area') {
+        html += renderers.area(d) + '</div>';
+        continue;
+      } else if (type === 'elenco') {
+        html += subBlock(d.titolo || 'Elenco', renderers.elenco(d)) + '</div>';
+        continue;
+      }
+      html += renderers[type]?.(d) ?? '';
     }
-    close();
-    return html + '</section>';
+    closeCard();
+    return html + '</div>';
   }
 }
 
@@ -622,7 +1026,7 @@ class Editor {
   render() {
     const { doc } = this.store;
     this.root.innerHTML = `
-      <p class="hint">Usa **grassetto** e *corsivo*. Aree, PNG, Oggetti, Fazioni, Mostri e Tabelle si annidano sotto l'ultimo Luogo.</p>
+      <p class="hint">Usa **grassetto** e *corsivo*. Elenchi, Aree, PNG, Oggetti, Fazioni, Mostri e Tabelle si annidano sotto l'ultimo Luogo; PNG e Oggetti finiscono nell'ultima Area.</p>
       <label>Titolo del documento</label>
       <input type="text" data-meta="title" value="${esc(doc.title)}">
       <label>Sottotitolo</label>
@@ -724,9 +1128,11 @@ class Editor {
 
 
 
+
+
 const $ = (id) => document.getElementById(id);
 
-/** Pulsanti della barra superiore: file JSON, tema, stampa/PDF, schede mobile. */
+/** Pulsanti della barra superiore: file JSON/HTML, immagini, tema, stampa/PDF, schede mobile. */
 class Toolbar {
   constructor(store) {
     this.store = store;
@@ -736,11 +1142,63 @@ class Toolbar {
     $('btn-export').onclick = () => this.#download();
     $('btn-import').onclick = () => $('file-import').click();
     $('file-import').onchange = (e) => this.#import(e.target.files[0], e.target);
+    $('btn-import-html').onclick = () => $('file-import-html').click();
+    $('file-import-html').onchange = (e) => this.#importHtml(e.target.files[0], e.target);
+    $('btn-images').onclick = () => $('dir-images').click();
+    $('dir-images').onchange = (e) => this.#linkImages(e.target.files, e.target);
+    $('btn-export-html').onclick = () => this.#exportHtml();
     $('btn-new').onclick = () => confirm('Creare un documento vuoto? Il lavoro attuale andrà perso se non l\'hai esportato.') && store.blank();
     $('btn-sample').onclick = () => confirm('Caricare il documento di esempio al posto di quello attuale?') && store.reset();
     $('btn-theme').onclick = () => this.#applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
     $('tab-editor').onclick = () => document.body.classList.remove('show-preview');
     $('tab-preview').onclick = () => document.body.classList.add('show-preview');
+  }
+
+  async #importHtml(file, input) {
+    if (!file) return;
+    input.value = '';
+    let doc;
+    try {
+      doc = importHtml(await file.text());
+    } catch (e) {
+      alert(`Impossibile leggere il manuale HTML: ${e.message}`);
+      return;
+    }
+    const n = doc.sections.reduce((k, s) => k + s.blocks.length, 0);
+    if (!confirm(`Trovati ${doc.sections.length} livelli/sezioni e ${n} blocchi in "${doc.sourceTitle || file.name}". `
+      + 'Sostituire il documento attuale? (Esporta prima il JSON se vuoi conservarlo.)')) return;
+    delete doc.sourceTitle;
+    this.store.replace(doc);
+    const local = doc.sections.some((s) => s.blocks.some((b) => b.data.imgPath));
+    if (local) {
+      alert('Il manuale usa immagini salvate sul tuo computer: premi "Collega immagini" e scegli la cartella che le contiene '
+        + '(es. la cartella Sol-Aeterna) per incorporarle nel documento.');
+    }
+  }
+
+  async #linkImages(files, input) {
+    if (!files?.length) return;
+    const doc = structuredClone(this.store.doc);
+    const n = await linkImages(doc, files, resizeImage);
+    input.value = '';
+    this.store.replace(doc);
+    alert(n ? `Immagini collegate: ${n}.` : 'Nessuna immagine del documento corrisponde ai file della cartella scelta.');
+  }
+
+  async #exportHtml() {
+    const el = document.getElementById('doc-css');
+    const css = el.tagName === 'STYLE' ? el.textContent : await (await fetch(el.href)).text();
+    const body = document.getElementById('document').innerHTML;
+    const title = this.store.doc.title || 'Documento';
+    const page = `<!DOCTYPE html>\n<html lang="it">\n<head>\n<meta charset="UTF-8">\n<title>${title.replace(/</g, '&lt;')}</title>\n`
+      + '<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">\n'
+      + `<style>\n${css}\nbody{margin:0;background:#f7f3e8}\n</style>\n</head>\n<body>\n<div class="paper container">\n${body}\n</div>\n</body>\n</html>\n`;
+    const blob = new Blob([page], { type: 'text/html' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${slug(title)}.html`;
+    a.click();
+    URL.revokeObjectURL(a.href);
   }
 
   #savedTheme() {
