@@ -1,63 +1,82 @@
-/* Layout del documento (stile manuale): usato sia in anteprima sia in stampa/PDF */
-.paper{--ink:#1c1815;--red:#58180D;--red2:#8c2514;max-width:820px;margin:0 auto;padding:18px;background:#f7f3e8;color:var(--ink);font:9.5pt/1.35 'EB Garamond','Georgia',serif;box-shadow:0 2px 12px rgba(0,0,0,.25)}
-.paper h1,.paper h2,.paper h3{font-family:'Cinzel',serif;color:var(--red)}
-.cover{text-align:center;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid var(--red)}
+/*
+ * Layout del documento: replica la tematizzazione del manuale di riferimento (Sol-Aeterna.html).
+ * Usato sia in anteprima sia in stampa/PDF e incorporato in "Esporta HTML".
+ */
+.paper{max-width:820px;margin:0 auto;padding:18px;font-family:'EB Garamond','Bookman Old Style','Georgia',serif;font-size:9pt;line-height:1.35;color:#1c1815;background-color:#f7f3e8;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.paper h1,.paper h2,.paper h3{font-family:'Cinzel',serif;color:#58180D}
+
+/* Copertina e indice (facoltativi) */
+.cover{text-align:center;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #58180D}
 .cover h1{margin:0;font-size:22pt;font-weight:900}
 .cover p{margin:4px 0 0;font-style:italic}
 .toc{margin:0 0 16px;padding:8px 14px;background:#fcfaf5;border:1px solid #d8ccb8;font-size:10pt}
 .toc h3{margin:0 0 4px;font-size:11pt}
-.level{margin-bottom:24px;padding:16px;background:#fcfaf5;border:1px solid #d8ccb8;border-radius:4px;break-after:page}
-.level:last-child{break-after:auto}
-.level-title{margin:0 0 12px;text-align:center;font-size:15pt;letter-spacing:1px}
 
-/* Luogo */
-.poi-card{margin-bottom:16px;padding:12px 14px;background:linear-gradient(135deg,#fdfbf7,#f4ede0);border:1px solid #c9baa2;border-left:4px solid var(--red);border-radius:2px;box-shadow:inset 0 0 30px rgba(194,181,155,.15)}
-.poi-title{margin:0 0 6px;padding-bottom:3px;font-size:11pt;letter-spacing:.5px;border-bottom:1px solid #d8ccb8}
-.env-image{width:100%;aspect-ratio:16/9;margin-bottom:8px;overflow:hidden;background:#dfd5c0;border:1px solid #7a2012;border-radius:2px}
-.env-image img,.entity-pic img{width:100%;height:100%;object-fit:cover;display:block}
-.read-aloud{margin:8px 0;padding:8px 12px;font-size:9pt;font-style:italic;text-align:justify;background:#f1ebd9;border:1px solid #e2dac9;border-left:3px solid var(--red2)}
-.read-aloud::first-letter{float:left;margin-right:4px;font:700 20pt/.8 'Cinzel',serif;color:var(--red)}
-.specs{margin-bottom:8px;padding:5px 8px;font-size:8pt;background:#eae1ce;border:1px solid #d4c8b0;border-radius:2px}
-.specs strong,.sub-title{font-family:'Cinzel',serif;color:var(--red)}
-.sub{margin-top:8px;padding-top:6px;font-size:9pt;text-align:justify;border-top:1px dashed #cbbea8}
-.sub-title{display:block;margin-bottom:4px;font-size:9.5pt;font-weight:700;letter-spacing:.5px}
+/* Livello / sezione */
+.level-wrapper{margin-bottom:30px;break-after:page;padding:20px;background-color:#fcfaf5;border:1px solid #d8ccb8;border-radius:4px}
+.level-wrapper:last-child{break-after:auto}
+.level-title{margin:0 0 14px;text-align:center;font-size:14pt;letter-spacing:1px}
 
-/* Aree annidate e intestazioni di gruppo */
-.group-title{margin:12px 0 4px;padding-top:6px;font:700 9.5pt 'Cinzel',serif;letter-spacing:.5px;color:var(--red);border-top:1px dashed #cbbea8}
-.settore-title{margin:10px 0 4px;font:700 9pt 'Cinzel',serif;letter-spacing:.5px;text-transform:uppercase;color:var(--red2)}
-.area-item{margin:6px 0;font-size:9pt;text-align:justify}
-.area-item strong{color:var(--ink)}
+/* Scheda del luogo */
+.poi-card{margin-bottom:16px;padding:12px 14px;background:linear-gradient(135deg,#fdfbf7 0%,#f4ede0 100%);border:1px solid #c9baa2;border-left:4px solid #58180D;border-radius:2px;box-shadow:0 2px 5px rgba(0,0,0,.05),inset 0 0 30px rgba(194,181,155,.15);break-inside:avoid}
+.poi-title{font-family:'Cinzel',serif;font-weight:700;color:#58180D;font-size:11pt;letter-spacing:.5px;margin-bottom:6px;border-bottom:1px solid #d8ccb8;padding-bottom:3px}
+.env-asset-box{width:100%;aspect-ratio:16/9;background-color:#dfd5c0;border:1px solid #7a2012;box-shadow:inset 0 0 10px rgba(0,0,0,.1);margin-bottom:8px;border-radius:2px;overflow:hidden}
+.env-asset-box img{width:100%;height:100%;object-fit:cover;display:block}
+.read-aloud{background:#f1ebd9;border-left:3px solid #8c2514;border-right:1px solid #e2dac9;border-top:1px solid #e2dac9;border-bottom:1px solid #e2dac9;font-style:italic;padding:8px 12px;margin:8px 0;font-size:8.5pt;color:#26211c;text-align:justify;border-radius:0 2px 2px 0}
+.read-aloud::first-letter{font-family:'Cinzel',serif;font-size:20pt;float:left;line-height:.8;margin-right:4px;color:#58180D;font-weight:700}
+.poi-specs{font-size:7.8pt;background-color:#eae1ce;border:1px solid #d4c8b0;padding:5px 8px;margin-bottom:8px;border-radius:2px;color:#2b251f}
+.poi-specs strong{color:#58180D;font-family:'Cinzel',serif;font-size:7.5pt;letter-spacing:.3px}
+.poi-sub-block{margin-top:8px;padding-top:6px;border-top:1px dashed #cbbea8;font-size:8.5pt;text-align:justify}
+.poi-sub-block-title{font-family:'Cinzel',serif;color:#58180D;font-weight:700;font-size:9pt;letter-spacing:.5px;margin-bottom:4px;display:block}
 
-/* Schede PNG / Oggetto / Fazione / Sessione */
-.entity{--c:var(--red);--c2:var(--red2);--b1:#f7f2e4;--b2:#ece3cf;--tag:#eee7d8;margin:8px 0;padding:8px 10px;overflow:hidden;font-size:8.5pt;background:linear-gradient(135deg,var(--b1),var(--b2));border:1px solid #cbbea8;border-left:3px solid var(--c);border-radius:2px;break-inside:avoid}
-.entity--oggetto{--c:#b8860b;--c2:#996515;--b1:#fbf7ee;--b2:#f1e7d0;--tag:#f3edd9}
-.entity--fazione{--c:#374151;--c2:#374151;--b1:#f4f4f2;--b2:#e6e5e0;--tag:#eae9e5}
-.entity--sessione{--c:#2f5d3a;--c2:#2f5d3a;--b1:#f3f6ee;--b2:#e3ebd9;--tag:#eaf0e2}
-.entity-name{margin-bottom:8px;padding:4px 8px;font:700 9.5pt 'Cinzel',serif;color:var(--c);background:var(--tag);border:1px solid #c9baa2;border-left:3px solid var(--c);border-radius:2px}
-.entity-pic{float:left;width:160px;aspect-ratio:4/3;margin:0 12px 4px 0;overflow:hidden;background:#ded4be;border:1px solid var(--c);border-radius:2px}
-.entity-field{margin-bottom:4px;text-align:justify}
-.entity-label{margin-right:4px;font:700 8pt 'Cinzel',serif;color:var(--c2)}
+/* Settori e sotto-aree */
+.settore-title{margin:10px 0 8px;color:#58180D;font-family:'Cinzel',serif;font-weight:700;font-size:8.8pt;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #cbbea8;padding-bottom:3px}
+.area-block{margin-bottom:12px}
+.area-text{font-size:8.5pt;text-align:justify;margin-bottom:6px}
+.card-field{text-align:justify;line-height:1.35;margin-bottom:4px}
 
-/* Mostro, tabella, nota */
-.stat{margin:8px 0;padding:8px 10px;font-size:8.5pt;background:#f4ede0;border:1px solid #cbbea8;border-top:3px solid var(--red);break-inside:avoid}
-.stat-name{font:700 11pt 'Cinzel',serif;color:var(--red)}
-.stat-type{margin-bottom:4px;font-style:italic;color:#4a3e35}
+/* Scheda PNG */
+.npc-inline-card{background:linear-gradient(135deg,#f7f2e4 0%,#ece3cf 100%);border:1px solid #cbbea8;border-left:3px solid #58180D;padding:8px 10px;margin:8px 0;font-size:8pt;border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,.04);overflow:hidden}
+.npc-name{font-family:'Cinzel',serif;font-weight:700;color:#58180D;font-size:9pt;background-color:#eee7d8;border:1px solid #c9baa2;border-left:3px solid #8c2514;padding:4px 8px;margin-bottom:8px;letter-spacing:.5px;border-radius:2px}
+.npc-portrait-box{float:left;width:160px;aspect-ratio:4/3;background-color:#ded4be;border:1px solid #8c2514;border-radius:2px;box-shadow:inset 0 0 6px rgba(0,0,0,.1);margin:0 12px 4px 0;overflow:hidden}
+.npc-portrait-box img{width:100%;height:100%;object-fit:cover;display:block}
+.npc-label{font-family:'Cinzel',serif;font-weight:700;color:#8c2514;font-size:7.8pt;letter-spacing:.4px;margin-right:4px}
+.session-card{border-left-color:#2f5d3a}
+
+/* Scheda oggetto */
+.item-inline-card{background:linear-gradient(135deg,#fbf7ee 0%,#f1e7d0 100%);border:1px solid #c8b99d;border-left:3px solid #b8860b;padding:8px 10px;margin:8px 0;font-size:8pt;border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,.04);overflow:hidden}
+.item-name{font-family:'Cinzel',serif;font-weight:700;color:#785200;font-size:9pt;background-color:#f3edd9;border:1px solid #dfd0b5;border-left:3px solid #b8860b;padding:4px 8px;margin-bottom:8px;letter-spacing:.5px;border-radius:2px}
+.item-portrait-box{float:left;width:160px;aspect-ratio:4/3;background-color:#ded4be;border:1px solid #b8860b;border-radius:2px;box-shadow:inset 0 0 6px rgba(0,0,0,.1);margin:0 12px 4px 0;overflow:hidden}
+.item-portrait-box img{width:100%;height:100%;object-fit:cover;display:block}
+.item-label{font-family:'Cinzel',serif;font-weight:700;color:#996515;font-size:7.8pt;letter-spacing:.4px;margin-right:4px}
+
+/* Scheda fazione */
+.faction-inline-card{background:linear-gradient(135deg,#f4f4f2 0%,#e6e5e0 100%);border:1px solid #bfbfbf;border-left:3px solid #374151;padding:8px 10px;margin:8px 0;font-size:8pt;border-radius:2px;box-shadow:0 1px 3px rgba(0,0,0,.04);overflow:hidden}
+.faction-name{font-family:'Cinzel',serif;font-weight:700;color:#1f2937;font-size:9pt;background-color:#eae9e5;border:1px solid #cfcfcf;border-left:3px solid #374151;padding:4px 8px;margin-bottom:8px;letter-spacing:.5px;border-radius:2px}
+.faction-portrait-box{float:left;width:160px;aspect-ratio:4/3;background-color:#ded4be;border:1px solid #4b5563;border-radius:2px;box-shadow:inset 0 0 6px rgba(0,0,0,.1);margin:0 12px 4px 0;overflow:hidden}
+.faction-portrait-box img{width:100%;height:100%;object-fit:cover;display:block}
+.faction-label{font-family:'Cinzel',serif;font-weight:700;color:#374151;font-size:7.8pt;letter-spacing:.4px;margin-right:4px}
+
+/* Statistiche D&D 2024 */
+.stat-block{background:#f4ede0;border:1px solid #cbbea8;padding:8px 10px;margin:6px 0;border-radius:2px;break-inside:avoid}
+.stat-name{font-family:'Cinzel',serif;font-weight:700;color:#58180D;font-size:9.5pt}
+.stat-type{font-style:italic;font-size:7.8pt;color:#4a3e35;margin-bottom:4px}
 .stat-line{margin:1px 0}
-.stat-section{margin-top:4px;font:700 8.5pt 'Cinzel',serif;color:var(--red2);border-bottom:1px dashed #cbbea8}
-.stat-table,.data-table{width:100%;border-collapse:collapse}
-.stat-table{margin:4px 0;text-align:center}
-.stat-table th,.data-table th{padding:2px 4px;font:700 8pt 'Cinzel',serif;color:var(--red);background:#dfd4be;text-align:left}
-.stat-table th{text-align:center}
-.table-title{margin-top:8px;break-after:avoid;font:700 9.5pt 'Cinzel',serif;color:var(--red)}
-.data-table{margin:2px 0 8px;font-size:8.5pt;break-inside:avoid}
-.data-table td{padding:2px 6px;border-bottom:1px solid #d8ccb8}
-.note{margin:8px 0;text-align:justify}
-.note h3{margin:0 0 4px;font-size:10.5pt}
+.stat-table{width:100%;text-align:center;font-size:7.8pt;margin:4px 0;border-collapse:collapse}
+.stat-table thead tr{background-color:#dfd4be;color:#58180D}
+.stat-section-title{font-family:'Cinzel',serif;font-weight:700;color:#8c2514;font-size:8pt;margin-top:4px;border-bottom:1px dashed #cbbea8}
 
-@page{size:A4;margin:14mm 12mm;@bottom-right{content:counter(page);font:8pt 'Cinzel',serif;color:#8c2514}}
+/* Tabelle e note */
+.table-title{margin-top:8px;break-after:avoid;font-family:'Cinzel',serif;font-weight:700;font-size:9pt;color:#58180D}
+.data-table{width:100%;margin:2px 0 8px;font-size:8pt;border-collapse:collapse;break-inside:avoid}
+.data-table th{padding:2px 6px;font-family:'Cinzel',serif;font-size:7.8pt;color:#58180D;background:#dfd4be;text-align:left}
+.data-table td{padding:2px 6px;border-bottom:1px solid #d8ccb8;vertical-align:top}
+.note{margin:8px 0;text-align:justify}
+.note h3{margin:0 0 4px;font-size:10pt}
+
+@page{size:A4;margin:14mm 12mm 14mm 12mm;@bottom-right{content:counter(page);font-family:'Cinzel',serif;font-size:8pt;color:#8c2514}}
 @media print{
   html,body{background:#f7f3e8!important}
   .paper{max-width:none;padding:0;box-shadow:none}
-  .level{padding:0;border:0}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }

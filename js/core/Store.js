@@ -18,7 +18,16 @@ export class Store {
   subscribe(fn) { this.listeners.add(fn); return () => this.listeners.delete(fn); }
 
   #emit(structural) {
-    try { localStorage.setItem(this.key, JSON.stringify(this.doc)); } catch { /* storage non disponibile */ }
+    try {
+      localStorage.setItem(this.key, JSON.stringify(this.doc));
+    } catch {
+      // spazio del browser esaurito (di solito per troppe immagini): avvisa una sola volta
+      if (!this.warned) {
+        this.warned = true;
+        alert('Il browser non riesce più a salvare il documento (spazio esaurito, probabilmente per le immagini). '
+          + 'Usa "Esporta JSON" per non perdere il lavoro.');
+      }
+    }
     this.listeners.forEach((fn) => fn(this.doc, structural));
   }
 

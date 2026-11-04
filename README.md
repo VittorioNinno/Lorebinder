@@ -1,18 +1,22 @@
 # Lorebinder
 
-Editor web per scrivere note di sessione e Lore di D&D e di esportarle in PDF con un'impaginazione da manuale: schede dei luoghi, PNG, oggetti, fazioni, mostri, tabelle e diario di sessione.
+Editor web per scrivere note di sessione e Lore di D&D e di esportarle in PDF o HTML con l'impaginazione da manuale di *Sol-Aeterna*: schede dei luoghi, aree, PNG, oggetti, fazioni, statistiche, tabelle e diario di sessione.
 Nessun backend e nessuna dipendenza: HTML, CSS e JavaScript (moduli ES). I dati restano nel browser (localStorage) e si possono esportare/importare in JSON.
 
 ## Funzionalità
 
 - Documento organizzato in sezioni (capitoli, livelli, sessioni) con blocchi riordinabili e duplicabili
-- Nove tipi di blocco: Luogo, Area, PNG, Oggetto, Fazione, Mostro, Tabella, Diario di Sessione, Nota
+- Dieci tipi di blocco: Luogo, Elenco / Architettura, Area / Settore, PNG, Oggetto, Fazione, Mostro, Tabella, Diario di Sessione, Nota
 - Aree e settori annidati nei luoghi, ciascuno con i propri PNG, e intestazioni di gruppo automatiche ("Aree, Settori & PNG Residenti", "Equilibri di Potere & Fazioni")
 - Anteprima in tempo reale con lo stesso layout usato per il PDF
 - Immagini per luoghi, PNG, oggetti e fazioni (ridimensionate automaticamente)
 - Indice automatico facoltativo e numerazione di pagina nel PDF
 - Modificatori delle caratteristiche calcolati in automatico nelle schede mostro
 - Salvataggio automatico, backup e importazione in JSON, tema chiaro/scuro
+- **Stesso layout di `Sol-Aeterna.html`**: schede luogo con sotto-blocchi, schede PNG/oggetto/fazione e statistiche con le stesse classi e gli stessi colori
+- **Importa HTML**: converte un manuale scritto in quel formato (es. `Sol-Aeterna.html`) in un documento modificabile
+- **Collega immagini**: dopo l'import, scegli la cartella delle immagini e i percorsi locali del manuale vengono incorporati nel documento
+- **Esporta HTML**: salva il documento come pagina HTML autonoma, identica all'anteprima
 
 ## Avvio
 
@@ -47,7 +51,7 @@ Il layout è ottimizzato per Chrome/Edge, che supportano anche la numerazione di
 - Nelle tabelle le colonne si separano con `|` e la prima riga è l'intestazione
 - Nelle schede mostro i sei valori si scrivono separati da virgola (`13,12,14,8,10,9`)
 
-Regola di annidamento: Area, PNG, Oggetto, Fazione, Mostro e Tabella finiscono dentro l'ultimo Luogo che li precede. Metti ogni Area prima dei PNG che vi risiedono. Diario di Sessione e Nota chiudono la scheda del luogo.
+Regola di annidamento: Elenco, Area, PNG, Oggetto, Fazione, Mostro e Tabella finiscono dentro l'ultimo Luogo che li precede. Metti ogni Area prima dei PNG che vi risiedono; un Mostro dopo una Fazione resta nel blocco delle fazioni. Nel Luogo puoi personalizzare i titoli dei sotto-blocchi (vie, fazioni, aree), aggiungere specifiche extra (es. `Altitudine: 0–50 m`) e togliere il numero con `-`. Diario di Sessione e Nota chiudono la scheda del luogo.
 
 ## Struttura del progetto
 
@@ -59,6 +63,7 @@ css/
 js/
   main.js               avvio e collegamento dei componenti
   core/Store.js         stato del documento, persistenza, operazioni sulla struttura
+  io/htmlImport.js      importazione dei manuali HTML e collegamento delle immagini
   data/blockTypes.js    definizione dei tipi di blocco e dei loro campi
   data/sample.js        documento di esempio (testo inventato)
   render/renderers.js   un renderer HTML per ogni tipo di blocco

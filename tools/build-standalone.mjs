@@ -8,7 +8,7 @@ const read = (p) => readFileSync(new URL('../' + p, import.meta.url), 'utf8');
 const order = [
   'js/utils/format.js', 'js/utils/image.js',
   'js/data/blockTypes.js', 'js/data/sample.js',
-  'js/core/Store.js',
+  'js/core/Store.js', 'js/io/htmlImport.js',
   'js/render/renderers.js', 'js/render/DocumentRenderer.js',
   'js/ui/Preview.js', 'js/ui/Editor.js', 'js/ui/Toolbar.js',
   'js/main.js',
@@ -20,8 +20,8 @@ const js = order
 
 let html = read('index.html');
 html = html.replace(
-  /<link rel="stylesheet" href="css\/base.css">\s*<link rel="stylesheet" href="css\/document.css">/,
-  () => `<style>\n${read('css/base.css')}\n${read('css/document.css')}\n</style>`,
+  /<link rel="stylesheet" href="css\/base.css">\s*<link rel="stylesheet" href="css\/document.css" id="doc-css">/,
+  () => `<style>\n${read('css/base.css')}\n</style>\n<style id="doc-css">\n${read('css/document.css')}\n</style>`,
 );
 html = html.replace(
   /<script type="module" src="js\/main.js"><\/script>/,
