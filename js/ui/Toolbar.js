@@ -1,4 +1,5 @@
 import { slug } from '../utils/format.js';
+import { BLOCK_TYPES } from '../data/blockTypes.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -46,6 +47,15 @@ export class Toolbar {
       if (!Array.isArray(doc.sections)) throw new Error('formato non valido');
     } catch {
       alert('File JSON non valido.');
+      input.value = '';
+      return;
+    }
+    // Controllo dei tipi PRIMA di sostituire il documento: un file non supportato non deve sovrascrivere il lavoro salvato
+    const unknown = [...new Set(doc.sections.flatMap((s) => (s.blocks ?? []).map((b) => b.type)))]
+      .filter((t) => !BLOCK_TYPES[t]);
+    if (unknown.length) {
+      alert(`Il file usa tipi di blocco che questa versione di Lorebinder non conosce: ${unknown.join(', ')}.\n`
+        + 'Ricarica la pagina con Ctrl+F5 per ottenere la versione aggiornata e riprova. Il documento attuale non è stato modificato.');
       input.value = '';
       return;
     }
