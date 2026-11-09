@@ -75,7 +75,7 @@
 .note{margin:8px 0;text-align:justify}
 .note h3{margin:0 0 4px;font-size:10pt}
 
-@page{size:A4;margin:14mm 12mm 14mm 12mm;@bottom-right{content:counter(page);font-family:'Cinzel',serif;font-size:8pt;color:#8c2514}}
+@page{size:A4;margin:14mm 12mm 14mm 12mm;background:#f7f3e8;@bottom-right{content:counter(page);font-family:'Cinzel',serif;font-size:8pt;color:#8c2514}}
 /*
  * Impaginazione PDF: le schede lunghe possono spezzarsi tra due pagine (niente pagine vuote),
  * ma titoli, intestazioni e immagini restano attaccati al contenuto che introducono.
