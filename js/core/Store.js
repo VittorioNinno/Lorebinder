@@ -1,5 +1,6 @@
 import { SAMPLE } from '../data/sample.js';
 import { uid } from '../utils/format.js';
+import { storage } from './storage.js';
 
 const move = (arr, i, d) => {
   const j = i + d;
@@ -7,36 +8,53 @@ const move = (arr, i, d) => {
   [arr[i], arr[j]] = [arr[j], arr[i]];
 };
 
-/** Stato del documento + persistenza su localStorage. I listener ricevono (doc, structural). */
+/**
+ * Stato del documento + salvataggio automatico nel browser (IndexedDB, vedi storage.js).
+ * I listener ricevono (doc, structural). Va caricato con `await store.load()` prima dell'uso.
+ */
 export class Store {
   constructor(key = 'lore-pdf-generator:v1') {
     this.key = key;
     this.listeners = new Set();
-    this.doc = this.#load();
+    this.doc = Store.normalize(structuredClone(SAMPLE));
+    this.saveTimer = null;
+    // salva subito quando la scheda viene nascosta o chiusa
+    document.addEventListener('visibilitychange', () => { if (document.hidden) this.flush(); });
+    window.addEventListener('pagehide', () => this.flush());
   }
 
   subscribe(fn) { this.listeners.add(fn); return () => this.listeners.delete(fn); }
 
-  #emit(structural) {
+  async load() {
+    storage.persist();
     try {
-      localStorage.setItem(this.key, JSON.stringify(this.doc));
-    } catch {
-      // spazio del browser esaurito (di solito per troppe immagini): avvisa una sola volta
-      if (!this.warned) {
-        this.warned = true;
-        alert('Il browser non riesce più a salvare il documento (spazio esaurito, probabilmente per le immagini). '
-          + 'Usa "Esporta JSON" per non perdere il lavoro.');
+      const raw = await storage.read(this.key);
+      if (raw) {
+        this.doc = Store.normalize(JSON.parse(raw));
+        await this.flush(); // sposta un eventuale vecchio salvataggio da localStorage a IndexedDB
       }
-    }
-    this.listeners.forEach((fn) => fn(this.doc, structural));
+    } catch { /* dati corrotti: si riparte dall'esempio */ }
+    return this.doc;
   }
 
-  #load() {
-    try {
-      const raw = localStorage.getItem(this.key);
-      if (raw) return Store.normalize(JSON.parse(raw));
-    } catch { /* dati corrotti: si riparte dall'esempio */ }
-    return Store.normalize(structuredClone(SAMPLE));
+  /** Salva subito (annulla il salvataggio ritardato). */
+  async flush() {
+    clearTimeout(this.saveTimer);
+    this.saveTimer = null;
+    const ok = await storage.write(this.key, JSON.stringify(this.doc));
+    if (!ok && !this.warned) {
+      this.warned = true;
+      alert('Il browser non riesce a salvare il documento (spazio su disco esaurito o salvataggio disattivato). '
+        + 'Usa "Esporta JSON" per non perdere il lavoro.');
+    }
+    return ok;
+  }
+
+  #emit(structural) {
+    // il salvataggio è ritardato: scrivere qualche MB a ogni tasto premuto rallenterebbe l'editor
+    clearTimeout(this.saveTimer);
+    this.saveTimer = setTimeout(() => this.flush(), 400);
+    this.listeners.forEach((fn) => fn(this.doc, structural));
   }
 
   static normalize(doc) {
