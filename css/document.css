@@ -85,7 +85,9 @@
 .card-field{orphans:3;widows:3}
 
 @media print{
-  html,body{background:#f7f3e8!important}
+  /* In stampa il documento è sempre chiaro: niente sfondo del tema scuro nei margini della pagina */
+  :root,:root[data-theme="dark"]{color-scheme:light!important;--bg:#f7f3e8;--panel:#f7f3e8;--text:#1c1815}
+  html,body{background:#f7f3e8!important;color:#1c1815}
   .paper{max-width:none;padding:0;box-shadow:none}
   .level-wrapper{padding:0;border:0;background:transparent}
   .poi-card{box-shadow:none}
