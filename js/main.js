@@ -5,6 +5,7 @@ import { Editor } from './ui/Editor.js';
 import { Toolbar } from './ui/Toolbar.js';
 
 const store = new Store();
+await store.load();
 const preview = new Preview(document.getElementById('document'), new DocumentRenderer());
 const editor = new Editor(document.getElementById('editor'), store);
 new Toolbar(store);

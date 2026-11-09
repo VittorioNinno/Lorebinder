@@ -8,7 +8,7 @@ const read = (p) => readFileSync(new URL('../' + p, import.meta.url), 'utf8');
 const order = [
   'js/utils/format.js', 'js/utils/image.js',
   'js/data/blockTypes.js', 'js/data/sample.js',
-  'js/core/Store.js', 'js/io/htmlImport.js',
+  'js/core/storage.js', 'js/core/Store.js', 'js/io/htmlImport.js',
   'js/render/renderers.js', 'js/render/DocumentRenderer.js',
   'js/ui/Preview.js', 'js/ui/Editor.js', 'js/ui/Toolbar.js',
   'js/main.js',
@@ -25,7 +25,7 @@ html = html.replace(
 );
 html = html.replace(
   /<script type="module" src="js\/main.js"><\/script>/,
-  () => `<script>\n(() => {\n'use strict';\n${js}\n})();\n</script>`,
+  () => `<script>\n(async () => {\n'use strict';\n${js}\n})();\n</script>`,
 );
 
 writeFileSync(new URL('../standalone.html', import.meta.url), html);
