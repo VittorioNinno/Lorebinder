@@ -20,11 +20,11 @@ const js = order
 
 let html = read('index.html');
 html = html.replace(
-  /<link rel="stylesheet" href="css\/base.css">\s*<link rel="stylesheet" href="css\/document.css" id="doc-css">/,
+  /<link rel="stylesheet" href="css\/base.css(?:\?v=\w+)?">\s*<link rel="stylesheet" href="css\/document.css(?:\?v=\w+)?" id="doc-css">/,
   () => `<style>\n${read('css/base.css')}\n</style>\n<style id="doc-css">\n${read('css/document.css')}\n</style>`,
 );
 html = html.replace(
-  /<script type="module" src="js\/main.js"><\/script>/,
+  /<script type="module" src="js\/main.js(?:\?v=\w+)?"><\/script>/,
   () => `<script>\n(async () => {\n'use strict';\n${js}\n})();\n</script>`,
 );
 
