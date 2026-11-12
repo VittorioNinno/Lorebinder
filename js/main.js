@@ -1,13 +1,13 @@
 import { Store } from './core/Store.js';
-import { DocumentRenderer } from './render/DocumentRenderer.js';
+import { DocumentRenderer } from './render/DocumentRenderer.js?v=20261113';
 import { Preview } from './ui/Preview.js';
-import { Editor } from './ui/Editor.js';
+import { Editor } from './ui/Editor.js?v=20261113';
 import { Toolbar } from './ui/Toolbar.js';
 
 const store = new Store();
 await store.load();
 const preview = new Preview(document.getElementById('document'), new DocumentRenderer());
-const editor = new Editor(document.getElementById('editor'), store);
+const editor = new Editor(document.getElementById('editor'), store, { preview: document.querySelector('.preview-pane') });
 new Toolbar(store);
 
 store.subscribe((doc) => preview.render(doc));
