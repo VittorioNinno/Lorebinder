@@ -35,6 +35,14 @@ textarea{min-height:70px;resize:vertical}
 .block-title{flex:1;cursor:pointer;font-weight:600}
 .block-type{font-size:11px;color:var(--muted);text-transform:uppercase}
 .block-body{padding:8px}
+.collapse-bar{display:flex;gap:6px;margin:8px 0 0}
+.twisty{min-width:24px;padding:2px 4px}
+.twisty-space{display:inline-block;width:24px;flex:none}
+.row .twisty{align-self:center}
+.count{align-self:center;font-size:11px;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:0 7px;white-space:nowrap}
+.block.depth-1{margin-left:14px}
+.block.depth-2{margin-left:28px}
+.block.is-collapsed,.section.is-collapsed{border-style:dashed;border-color:var(--accent)}
 .add-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
 .thumb{max-width:100px;max-height:60px;margin-left:6px;vertical-align:middle;border-radius:3px}
 @media (max-width:860px){
@@ -1101,11 +1109,34 @@ class Preview {
 
 
 
+const COLLAPSE_KEY = 'lorebinder:editor-compressi';
+
+/**
+ * Calcola la gerarchia dei blocchi di una sezione, con le stesse regole dell'impaginazione:
+ * i blocchi annidati appartengono all'ultimo Luogo; PNG, Oggetti, Mostri e Tabelle all'ultima Area.
+ * Restituisce per ogni blocco l'indice del genitore (o -1) e la profondità.
+ */
+function hierarchy(blocks) {
+  let luogo = -1;
+  let area = -1;
+  return blocks.map((b, i) => {
+    if (b.type === 'luogo') { luogo = i; area = -1; return { parent: -1, depth: 0 }; }
+    if (!NESTED.has(b.type)) { luogo = -1; area = -1; return { parent: -1, depth: 0 }; }
+    if (b.type === 'area') { area = i; return { parent: luogo, depth: luogo < 0 ? 0 : 1 }; }
+    if (b.type === 'elenco' || b.type === 'fazione') { area = -1; return { parent: luogo, depth: luogo < 0 ? 0 : 1 }; }
+    const parent = area >= 0 ? area : luogo;
+    return { parent, depth: parent < 0 ? 0 : (parent === area ? (luogo < 0 ? 1 : 2) : 1) };
+  });
+}
+
 /** Pannello di modifica: form generati dalla definizione dei tipi di blocco. */
 class Editor {
   constructor(root, store) {
     this.root = root;
     this.store = store;
+    // Voci compresse nell'elenco dell'editor (solo interfaccia: non cambia il documento né il PDF)
+    try { this.collapsed = new Set(JSON.parse(localStorage.getItem(COLLAPSE_KEY) || '[]')); }
+    catch { this.collapsed = new Set(); }
     root.addEventListener('input', (e) => this.#onInput(e));
     root.addEventListener('change', (e) => this.#onChange(e));
     root.addEventListener('click', (e) => this.#onClick(e));
@@ -1121,6 +1152,10 @@ class Editor {
       <label>Sottotitolo</label>
       <input type="text" data-meta="subtitle" value="${esc(doc.subtitle)}">
       <label class="check"><input type="checkbox" data-meta="toc" ${doc.toc ? 'checked' : ''}> Mostra l'indice nel PDF</label>
+      <div class="collapse-bar">
+        <button type="button" class="sm" data-action="collapse-all" title="Comprime sezioni, Luoghi e Aree nell'elenco">▸ Comprimi tutto</button>
+        <button type="button" class="sm" data-action="expand-all">▾ Espandi tutto</button>
+      </div>
       ${doc.sections.map((s, si) => this.#section(s, si)).join('')}
       <button type="button" data-action="section-add">+ Nuova sezione</button>`;
   }
@@ -1129,28 +1164,45 @@ class Editor {
     const addButtons = Object.entries(BLOCK_TYPES)
       .map(([type, def]) => `<button type="button" class="sm" data-action="block-add" data-s="${si}" data-type="${type}">+ ${def.label}</button>`)
       .join('');
-    return `<div class="section">
+    const closed = this.collapsed.has(section.id);
+    const tree = hierarchy(section.blocks);
+    const hidden = section.blocks.map(() => false);
+    const children = section.blocks.map(() => 0);
+    tree.forEach(({ parent }, i) => {
+      for (let p = parent; p >= 0; p = tree[p].parent) children[p] += 1;
+      for (let p = parent; p >= 0; p = tree[p].parent) if (this.collapsed.has(section.blocks[p].id)) hidden[i] = true;
+    });
+    const body = closed ? '' : `${section.blocks.map((b, bi) => hidden[bi] ? '' : this.#block(b, si, bi, tree[bi].depth, children[bi])).join('')}
+      <div class="add-row">${addButtons}</div>`;
+    return `<div class="section${closed ? ' is-collapsed' : ''}">
       <div class="row">
+        <button type="button" class="sm twisty" data-action="collapse-section" data-s="${si}" title="${closed ? 'Espandi' : 'Comprimi'} la sezione">${closed ? '▸' : '▾'}</button>
         <input type="text" data-section-title="${si}" value="${esc(section.title)}" placeholder="Titolo sezione / capitolo / sessione">
+        ${closed ? `<span class="count" title="Blocchi nella sezione">${section.blocks.length}</span>` : ''}
         <button type="button" class="sm" data-action="section-up" data-s="${si}">↑</button>
         <button type="button" class="sm" data-action="section-down" data-s="${si}">↓</button>
         <button type="button" class="sm" data-action="section-del" data-s="${si}">✕</button>
       </div>
-      ${section.blocks.map((b, bi) => this.#block(b, si, bi)).join('')}
-      <div class="add-row">${addButtons}</div>
+      ${body}
     </div>`;
   }
 
-  #block(block, si, bi) {
+  #block(block, si, bi, depth = 0, kids = 0) {
     const def = BLOCK_TYPES[block.type] ?? { label: `Tipo sconosciuto (${block.type})`, fields: [] };
     const ref = `data-s="${si}" data-b="${bi}"`;
     const body = block.open
       ? `<div class="block-body">${def.fields.map((f) => this.#field(f, block.data[f.key], si, bi)).join('')}</div>`
       : '';
-    return `<div class="block">
+    const closed = kids > 0 && this.collapsed.has(block.id);
+    const twisty = kids
+      ? `<button type="button" class="sm twisty" data-action="collapse-block" ${ref} title="${closed ? 'Mostra' : 'Nascondi'} i ${kids} blocchi annidati">${closed ? '▸' : '▾'}</button>`
+      : '<span class="twisty-space"></span>';
+    return `<div class="block depth-${depth}${closed ? ' is-collapsed' : ''}">
       <div class="block-head">
+        ${twisty}
         <span class="block-type">${def.label}</span>
         <b class="block-title" data-action="block-toggle" ${ref}>${esc(titleOf(block))}</b>
+        ${closed ? `<span class="count" title="Blocchi annidati nascosti">+${kids}</span>` : ''}
         <button type="button" class="sm" data-action="block-dup" ${ref} title="Duplica">⧉</button>
         <button type="button" class="sm" data-action="block-up" ${ref}>↑</button>
         <button type="button" class="sm" data-action="block-down" ${ref}>↓</button>
@@ -1209,7 +1261,39 @@ class Editor {
       case 'block-toggle': return st.toggleBlock(s, b);
       case 'block-del': return confirm('Eliminare il blocco?') && st.removeBlock(s, b);
       case 'image-clear': st.setField(s, b, btn.dataset.k, ''); return this.render();
+      case 'collapse-section': return this.#toggleCollapsed(st.doc.sections[s].id);
+      case 'collapse-block': return this.#toggleCollapsed(st.doc.sections[s].blocks[b].id);
+      case 'collapse-all': return this.#setAll(true);
+      case 'expand-all': return this.#setAll(false);
     }
+  }
+
+  #toggleCollapsed(id) {
+    if (this.collapsed.has(id)) this.collapsed.delete(id); else this.collapsed.add(id);
+    this.#saveCollapsed();
+    this.render();
+  }
+
+  /** Comprime (o espande) sezioni, Luoghi e Aree con contenuto annidato. */
+  #setAll(collapse) {
+    this.collapsed.clear();
+    if (collapse) {
+      for (const section of this.store.doc.sections) {
+        this.collapsed.add(section.id);
+        const tree = hierarchy(section.blocks);
+        const parents = new Set(tree.map((t) => t.parent).filter((p) => p >= 0));
+        parents.forEach((i) => this.collapsed.add(section.blocks[i].id));
+      }
+    }
+    this.#saveCollapsed();
+    this.render();
+  }
+
+  #saveCollapsed() {
+    // si tengono solo gli id ancora presenti nel documento
+    const ids = new Set(this.store.doc.sections.flatMap((s) => [s.id, ...s.blocks.map((b) => b.id)]));
+    this.collapsed = new Set([...this.collapsed].filter((id) => ids.has(id)));
+    try { localStorage.setItem(COLLAPSE_KEY, JSON.stringify([...this.collapsed])); } catch { /* ignora */ }
   }
 }
 
